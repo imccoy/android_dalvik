@@ -21,6 +21,7 @@ import com.android.dx.rop.cst.CstNat;
 import com.android.dx.rop.cst.CstString;
 import com.android.dx.rop.cst.CstUtf8;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
 
 import java.util.Collection;
@@ -46,6 +47,14 @@ public final class StringIdsSection
         super("string_ids", file, 4);
 
         strings = new TreeMap<CstUtf8, StringIdItem>();
+    }
+
+    public void parse(MixedItemSection stringData, ByteArray byteArray, int stringIdsSize) {
+        for (int i = 0; i < stringIdsSize; i += 1) {
+            StringIdItem item = new StringIdItem(byteArray, i);
+            strings.put(item.getValue(), item);
+            stringData.add(item.getData());
+        }
     }
 
     /** {@inheritDoc} */

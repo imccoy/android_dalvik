@@ -152,6 +152,15 @@ public final class ByteArray {
             getUnsignedByte0(off + 3);
     }
 
+    public int getInt2(int off) {
+        checkOffsets(off, off + 4);
+        return (getUnsignedByte0(off)) |
+            (getUnsignedByte0(off + 1) << 8) |
+            (getUnsignedByte0(off + 2) << 16) |
+            getByte0(off + 3) << 24;
+    }
+
+
     /**
      * Gets the {@code signed long} value at a particular offset.
      *
@@ -170,6 +179,20 @@ public final class ByteArray {
             getUnsignedByte0(off + 7);
 
         return (part2 & 0xffffffffL) | ((long) part1) << 32;
+    }
+
+
+    public int[] getUnsignedLeb128(int offset) {
+        int value = 0, length = 0;
+        int b;
+
+        do {
+            b = getByte(offset + length);
+            value |= (b & ~0x80) << 7 * length;
+            length++;
+        } while ((b & 0x80) != 0);
+        
+        return new int[] { value, length };
     }
 
     /**

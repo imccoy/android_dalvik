@@ -19,6 +19,7 @@ package com.android.dx.command.dexer;
 import com.android.dx.Version;
 import com.android.dx.cf.iface.ParseException;
 import com.android.dx.cf.direct.ClassPathOpener;
+import com.android.dx.cf.direct.DirectClassFile;
 import com.android.dx.command.DxConsole;
 import com.android.dx.command.UsageException;
 import com.android.dx.dex.cf.CfOptions;
@@ -293,9 +294,10 @@ public class Main {
      */
     private static boolean processFileBytes(String name, byte[] bytes) {
         boolean isClass = name.endsWith(".class");
+        boolean isDex = name.endsWith(".dex");
         boolean keepResources = (outputResources != null);
 
-        if (!isClass && !keepResources) {
+        if (!isClass && !isDex && !keepResources) {
             if (args.verbose) {
                 DxConsole.out.println("ignored resource " + name);
             }
@@ -313,6 +315,8 @@ public class Main {
                 outputResources.put(fixedName, bytes);
             }
             return processClass(fixedName, bytes);
+   	    } else if (isDex) {
+            return processDex(fixedName, bytes);
         } else {
             outputResources.put(fixedName, bytes);
             return true;
@@ -348,6 +352,11 @@ public class Main {
 
         warnings++;
         return false;
+    }
+
+    private static boolean processDex(String name, byte[] bytes) {
+        outputDex.parse(bytes, name);
+        return true;
     }
 
     /**

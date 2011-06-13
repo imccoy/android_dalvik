@@ -25,6 +25,7 @@ import com.android.dx.rop.cst.CstType;
 import com.android.dx.rop.cst.CstUtf8;
 import com.android.dx.rop.type.Type;
 import com.android.dx.util.ByteArrayAnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.ExceptionWithContext;
 
 import java.io.IOException;
@@ -625,6 +626,17 @@ public final class DexFile {
             throw new RuntimeException(ex);
         }
     }
+
+    public void parse(byte[] bytes, String filename) {
+        ByteArray byteArray = new ByteArray(bytes);
+        /* skip straight to the string ids */
+        int stringIdsSize = byteArray.getInt2(0x38);
+        stringIds.parse(stringData, byteArray, stringIdsSize);
+        int typeIdsSize = byteArray.getInt2(0x40);
+        typeIds.parse(byteArray, typeIdsSize);
+        int protoIdsSize = byteArray.getInt2(0x48);
+    }
+
 
     /**
      * Calculates the checksum for the {@code .dex} file in the
