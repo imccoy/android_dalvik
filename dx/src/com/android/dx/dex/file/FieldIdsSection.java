@@ -19,6 +19,7 @@ package com.android.dx.dex.file;
 import com.android.dx.rop.cst.Constant;
 import com.android.dx.rop.cst.CstFieldRef;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
 
 import java.util.Collection;
@@ -43,6 +44,13 @@ public final class FieldIdsSection extends MemberIdsSection {
         super("field_ids", file);
 
         fieldIds = new TreeMap<CstFieldRef, FieldIdItem>();
+    }
+
+    public void parse(ByteArray byteArray, int fieldIdsSize) {
+        for (int i = 0; i < fieldIdsSize; i += 1) {
+            FieldIdItem item = new FieldIdItem(byteArray, i);
+            fieldIds.put(item.getFieldRef(), item);
+        }
     }
 
     /** {@inheritDoc} */
