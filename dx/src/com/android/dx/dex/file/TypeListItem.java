@@ -21,6 +21,7 @@ import com.android.dx.rop.type.StdTypeList;
 import com.android.dx.rop.type.Type;
 import com.android.dx.rop.type.TypeList;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
 
 /**
@@ -48,6 +49,23 @@ public final class TypeListItem extends OffsettedItem {
         super(ALIGNMENT, (list.size() * ELEMENT_SIZE) + HEADER_SIZE);
 
         this.list = list;
+    }
+
+    public TypeListItem(ByteArray byteArray, int typeListOffset) {
+        this(parseTypeList(byteArray, typeListOffset));
+    }
+
+    private static TypeList parseTypeList(ByteArray byteArray, int typeListOffset) {
+        int sz = byteArray.getInt2(typeListOffset);
+        System.out.println(typeListOffset);
+        System.out.println(sz);
+        StdTypeList typeList = new StdTypeList(sz);
+        typeListOffset += 4;
+        for (int i = 0; i < sz; i++) {
+            int typeId = byteArray.getShort2(typeListOffset + i * 2);
+            typeList.set(i, new TypeIdItem(byteArray, typeId).getDefiningClass().getClassType());
+        }
+        return typeList;
     }
 
     /** {@inheritDoc} */

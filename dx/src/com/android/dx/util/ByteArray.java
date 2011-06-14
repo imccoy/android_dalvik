@@ -138,6 +138,11 @@ public final class ByteArray {
         return (getByte0(off) << 8) | getUnsignedByte0(off + 1);
     }
 
+    public int getShort2(int off) {
+        checkOffsets(off, off + 2);
+        return (getUnsignedByte0(off + 1) << 8) | getByte0(off);
+    }
+
     /**
      * Gets the {@code signed int} value at a particular offset.
      *

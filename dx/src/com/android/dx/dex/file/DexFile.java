@@ -635,6 +635,7 @@ public final class DexFile {
         int typeIdsSize = byteArray.getInt2(0x40);
         typeIds.parse(byteArray, typeIdsSize);
         int protoIdsSize = byteArray.getInt2(0x48);
+        protoIds.parse(byteArray, protoIdsSize);
     }
 
 
