@@ -28,6 +28,7 @@ import com.android.dx.rop.cst.CstUtf8;
 import com.android.dx.rop.type.StdTypeList;
 import com.android.dx.rop.type.TypeList;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
 import com.android.dx.util.Writers;
 
@@ -111,6 +112,38 @@ public final class ClassDefItem extends IndexedItem {
         this.classData = new ClassDataItem(thisClass);
         this.staticValuesItem = null;
         this.annotationsDirectory = new AnnotationsDirectoryItem();
+    }
+
+    public ClassDefItem(ByteArray byteArray, int index) {
+        this(parse(byteArray, index));
+    }
+
+    private ClassDefItem(ClassDefItem classDefItem) {
+        this(classDefItem.getThisClass(), classDefItem.getAccessFlags(),
+             classDefItem.getSuperclass(), classDefItem.getInterfaces(),
+             classDefItem.getSourceFile());
+    }
+
+    private static ClassDefItem parse(ByteArray byteArray, int index) {
+        int classDefsOffset = byteArray.getInt2(0x64);
+        int classDefOffset = classDefsOffset + (index * WRITE_SIZE);
+        int thisClassIdOffset = byteArray.getInt2(classDefOffset);
+        CstType thisClass = new TypeIdItem(byteArray, thisClassIdOffset).getDefiningClass();
+
+        int accessFlags = byteArray.getInt2(classDefOffset + 4);
+
+        int superClassIdOffset = byteArray.getInt2(classDefOffset + 8);
+        CstType superclass = superClassIdOffset == -1 ? null :
+                new TypeIdItem(byteArray, superClassIdOffset).getDefiningClass();
+
+        int interfacesOffset = byteArray.getInt2(classDefOffset + 12);
+        TypeList interfaces = interfacesOffset == 0 ? StdTypeList.EMPTY :
+                new TypeListItem(byteArray, interfacesOffset).getList();
+
+        int sourceFileOffset = byteArray.getInt2(classDefOffset + 16);
+        CstUtf8 sourceFile = new StringIdItem(byteArray, sourceFileOffset).getValue();
+
+        return new ClassDefItem(thisClass, accessFlags, superclass, interfaces, sourceFile);
     }
 
     /** {@inheritDoc} */

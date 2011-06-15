@@ -640,6 +640,8 @@ public final class DexFile {
         fieldIds.parse(byteArray, fieldIdsSize);
         int methodIdsSize = byteArray.getInt2(0x58);
         methodIds.parse(byteArray, methodIdsSize);
+        int classDefsSize = byteArray.getInt2(0x60);
+        classDefs.parse(byteArray, classDefsSize);
     }
 
 
