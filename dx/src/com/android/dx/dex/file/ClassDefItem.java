@@ -122,6 +122,7 @@ public final class ClassDefItem extends IndexedItem {
         this(classDefItem.getThisClass(), classDefItem.getAccessFlags(),
              classDefItem.getSuperclass(), classDefItem.getInterfaces(),
              classDefItem.getSourceFile());
+        this.annotationsDirectory = classDefItem.annotationsDirectory;
     }
 
     private static ClassDefItem parse(ByteArray byteArray, int index) {
@@ -143,7 +144,14 @@ public final class ClassDefItem extends IndexedItem {
         int sourceFileOffset = byteArray.getInt2(classDefOffset + 16);
         CstUtf8 sourceFile = new StringIdItem(byteArray, sourceFileOffset).getValue();
 
-        return new ClassDefItem(thisClass, accessFlags, superclass, interfaces, sourceFile);
+        int annotationsOffset = byteArray.getInt2(classDefOffset + 20);
+        System.out.println("ClassDefItem sees annotationsOffset of " + annotationsOffset);
+        AnnotationsDirectoryItem annotationsDirectory = annotationsOffset == 0 ? null : 
+                AnnotationsDirectoryItem.parse(byteArray, annotationsOffset);
+
+        ClassDefItem classDefItem = new ClassDefItem(thisClass, accessFlags, superclass, interfaces, sourceFile);
+        classDefItem.annotationsDirectory = annotationsDirectory;
+        return classDefItem;
     }
 
     /** {@inheritDoc} */

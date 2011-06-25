@@ -19,6 +19,7 @@ package com.android.dx.dex.file;
 import com.android.dx.rop.annotation.Annotations;
 import com.android.dx.rop.annotation.Annotation;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
 
 /**
@@ -153,5 +154,16 @@ public final class AnnotationSetItem extends OffsettedItem {
 
             out.writeInt(offset);
         }
+    }
+
+    public static AnnotationSetItem parse(ByteArray byteArray, int offset) {
+        int size = byteArray.getInt2(offset);
+        System.out.println("AnnotationSetItem at " + Hex.u4(offset) + " has size " + size);
+        Annotations annotations = new Annotations();
+        for (int i = 0; i < size; i++) {
+            System.out.println("Annotation is at " + Hex.u4(4 + offset + i * ALIGNMENT));
+            annotations = Annotations.combine(annotations, new AnnotationItem(byteArray, 4 + offset + i * ALIGNMENT).getAnnotation());
+        }
+        return new AnnotationSetItem(annotations);
     }
 }

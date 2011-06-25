@@ -21,6 +21,7 @@ import com.android.dx.rop.annotation.AnnotationsList;
 import com.android.dx.rop.cst.CstFieldRef;
 import com.android.dx.rop.cst.CstMethodRef;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
 
 import java.io.PrintWriter;
@@ -62,6 +63,15 @@ public final class AnnotationsDirectoryItem extends OffsettedItem {
         fieldAnnotations = null;
         methodAnnotations = null;
         parameterAnnotations = null;
+    }
+
+    public static AnnotationsDirectoryItem parse(ByteArray byteArray, int offset) {
+        int classAnnotationsOffset = byteArray.getInt2(offset);
+        AnnotationsDirectoryItem item = new AnnotationsDirectoryItem();
+        System.out.println("class annotations offset " + Hex.u4(offset) + " " + Hex.u4(classAnnotationsOffset));
+        item.classAnnotations = classAnnotationsOffset == 0 ? null :
+                AnnotationSetItem.parse(byteArray, classAnnotationsOffset);
+        return item;
     }
 
     /** {@inheritDoc} */

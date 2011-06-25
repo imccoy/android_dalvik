@@ -193,7 +193,7 @@ public final class ByteArray {
 
         do {
             b = getByte(offset + length);
-            value |= (b & ~0x80) << 7 * length;
+            value |= (b & 0x7F) << 7 * length;
             length++;
         } while ((b & 0x80) != 0);
         

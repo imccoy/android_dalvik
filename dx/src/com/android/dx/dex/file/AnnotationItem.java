@@ -24,6 +24,7 @@ import com.android.dx.rop.cst.CstAnnotation;
 import com.android.dx.rop.cst.CstArray;
 import com.android.dx.rop.cst.CstUtf8;
 import com.android.dx.util.ByteArrayAnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.AnnotatedOutput;
 
 import java.util.Arrays;
@@ -115,6 +116,17 @@ public final class AnnotationItem extends OffsettedItem {
         this.encodedForm = null;
     }
 
+    public AnnotationItem(ByteArray byteArray, int offset) {
+        this(parse(byteArray, offset).annotation);
+    }
+
+    private static AnnotationItem parse(ByteArray byteArray, int byteArrayIndexOffset) {
+        int offset = byteArray.getInt2(byteArrayIndexOffset);
+        int visibilityByte = byteArray.getByte(offset);
+        AnnotationVisibility visibility = visibilityFromByte(visibilityByte);
+        return new AnnotationItem(new ValueDecoder(byteArray, offset + 1).readAnnotation(visibility));
+    }
+
     /** {@inheritDoc} */
     @Override
     public ItemType itemType() {
@@ -139,6 +151,10 @@ public final class AnnotationItem extends OffsettedItem {
     @Override
     public String toHuman() {
         return annotation.toHuman();
+    }
+
+    public Annotation getAnnotation() {
+        return annotation;
     }
 
     /** {@inheritDoc} */
@@ -216,5 +232,14 @@ public final class AnnotationItem extends OffsettedItem {
         } else {
             out.write(encodedForm);
         }
+    }
+
+    private static AnnotationVisibility visibilityFromByte(int b) {
+        switch (b) {
+            case VISIBILITY_BUILD: return AnnotationVisibility.BUILD;
+            case VISIBILITY_RUNTIME: return AnnotationVisibility.RUNTIME;
+            case VISIBILITY_SYSTEM: return AnnotationVisibility.SYSTEM;
+        }
+        throw new RuntimeException("shouldn't happen, was " + b + " but wanted one of " + VISIBILITY_BUILD + " " + VISIBILITY_RUNTIME + " " + VISIBILITY_SYSTEM); /* rumor is, it was probably EMBEDDED */
     }
 }
