@@ -17,8 +17,10 @@
 package com.android.dx.dex.file;
 
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -199,6 +201,15 @@ public final class UniformListItem<T extends OffsettedItem>
         for (OffsettedItem i : items) {
             i.writeTo(file, out);
         }
+    }
+
+    public static UniformListItem<AnnotationSetRefItem> parse(ByteArray byteArray, int offset) {
+        List<AnnotationSetRefItem> list = new ArrayList<AnnotationSetRefItem>();
+        int size = byteArray.getInt2(offset);
+        for (int i = 0; i < size; i++) {
+            list.add(AnnotationSetRefItem.parse(byteArray, offset + (1 + i) * 4));
+        }
+        return new UniformListItem<AnnotationSetRefItem>(ItemType.TYPE_ANNOTATION_SET_REF_LIST, list);
     }
 
     /**

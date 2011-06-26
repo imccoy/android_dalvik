@@ -17,6 +17,7 @@
 package com.android.dx.dex.file;
 
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
 
 /**
@@ -76,5 +77,15 @@ public final class AnnotationSetRefItem extends OffsettedItem {
         }
 
         out.writeInt(annotationsOff);
+    }
+
+    AnnotationSetItem getAnnotationSetItem() { 
+        return annotations;
+    }
+
+    public static AnnotationSetRefItem parse(ByteArray byteArray, int offset) {
+        int annotationSetOffset = byteArray.getInt2(offset);
+        AnnotationSetItem item = AnnotationSetItem.parse(byteArray, annotationSetOffset);
+        return new AnnotationSetRefItem(item);
     }
 }

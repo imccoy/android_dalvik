@@ -142,22 +142,23 @@ public final class ValueDecoder {
             System.out.println(Hex.u8(value));
             int b = readByte();
             value = value | ((b & 0xFF) << (i * 8));
-            requiredBytes--;
         }
         return value;
     }
 
     private long readSignedIntegralValue(int typeByte) {
-        throw new RuntimeException("This is wrong; need to pack bytes in other order, and sign-extend");
-        /*
         int requiredBytes = (typeByte >> 5) + 1;
         long value = 0;
-        while (requiredBytes > 0) {
-            value = (value << 8) | readByte();
-            requiredBytes--;
+        int i = 0;
+        int b;
+        while (i < requiredBytes - 1) {
+            b = readByte();
+            value = value | ((b & 0xFF) << (i * 8));
+            i++;
         }
+        b = readByte();
+        value = value | (b << (i * 8)); /* does this sign-extend? */
         return value;
-        */
     } 
 
     private int readUnsignedLeb128() {

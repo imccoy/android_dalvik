@@ -71,6 +71,35 @@ public final class AnnotationsDirectoryItem extends OffsettedItem {
         System.out.println("class annotations offset " + Hex.u4(offset) + " " + Hex.u4(classAnnotationsOffset));
         item.classAnnotations = classAnnotationsOffset == 0 ? null :
                 AnnotationSetItem.parse(byteArray, classAnnotationsOffset);
+        int fieldsSize = byteArray.getInt2(offset + 4);
+        int methodsSize = byteArray.getInt2(offset + 8);
+        int parametersSize = byteArray.getInt2(offset + 12);
+        int i;
+        int annotationRefOffset = offset + 16;
+
+        item.fieldAnnotations = new ArrayList<FieldAnnotationStruct>();
+        for (i = 0; i < fieldsSize; i++) {
+            int fieldIdx = byteArray.getInt2(annotationRefOffset);
+            int annotationOffset = byteArray.getInt2(annotationRefOffset + 4);
+            item.fieldAnnotations.add(new FieldAnnotationStruct(new FieldIdItem(byteArray, fieldIdx).getFieldRef(), AnnotationSetItem.parse(byteArray, annotationOffset)));
+            annotationRefOffset += 8;
+        }
+
+        item.methodAnnotations = new ArrayList<MethodAnnotationStruct>();
+        for (i = 0; i < methodsSize; i++) {
+            int methodIdx = byteArray.getInt2(annotationRefOffset);
+            int annotationOffset = byteArray.getInt2(annotationRefOffset + 4);
+            item.methodAnnotations.add(new MethodAnnotationStruct((CstMethodRef)new MethodIdItem(byteArray, methodIdx).getMethodRef(), AnnotationSetItem.parse(byteArray, annotationOffset)));
+            annotationRefOffset += 8;
+        }
+
+        item.parameterAnnotations = new ArrayList<ParameterAnnotationStruct>();
+        for (i = 0; i < parametersSize; i++) {
+            int parameterIdx = byteArray.getInt2(annotationRefOffset);
+            int annotationOffset = byteArray.getInt2(annotationRefOffset + 4);
+            item.parameterAnnotations.add(new ParameterAnnotationStruct((CstMethodRef)new MethodIdItem(byteArray, parameterIdx).getMethodRef(), UniformListItem.parse(byteArray, annotationOffset)));
+            annotationRefOffset += 8;
+        }
         return item;
     }
 
