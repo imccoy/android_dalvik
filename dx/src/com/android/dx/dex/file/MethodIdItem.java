@@ -57,7 +57,6 @@ public final class MethodIdItem extends MemberIdItem {
 
         int nameOffset = byteArray.getInt2(methodIdOffset + 4);
         CstUtf8 name = new CstUtf8(new StringIdItem(byteArray, nameOffset).getValue().getString()); 
-        System.out.println("method " + name + " of type " + prototype + " defined by " + definingClass);
 
         return new CstMethodRef(definingClass, new CstNat(name, prototype));
     }

@@ -17,10 +17,16 @@
 package com.android.dx.dex.code.form;
 
 import com.android.dx.dex.code.DalvInsn;
+import com.android.dx.dex.code.Dop;
 import com.android.dx.dex.code.InsnFormat;
 import com.android.dx.dex.code.SimpleInsn;
+import com.android.dx.rop.code.RegisterSpec;
 import com.android.dx.rop.code.RegisterSpecList;
+import com.android.dx.rop.code.SourcePosition;
+import com.android.dx.rop.type.Type;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
+import com.android.dx.util.ValueWithSize;
 
 /**
  * Instruction format {@code 23x}. See the instruction format spec
@@ -85,4 +91,17 @@ public final class Form23x extends InsnFormat {
               opcodeUnit(insn, regs.get(0).getReg()),
               codeUnit(regs.get(1).getReg(), regs.get(2).getReg()));
     }
+
+    public ValueWithSize<DalvInsn> parse(Dop opcode, ByteArray byteArray, int offset) {
+        int a = byteArray.getByte(offset + 1);
+	int cu2 = byteArray.getShort(offset + 2);
+        int b = lowByte(cu2);
+	int c = highByte(cu2);
+        RegisterSpecList regs = RegisterSpecList.make(RegisterSpec.make(a, Type.VOID),
+			RegisterSpec.make(b, Type.VOID),
+			RegisterSpec.make(c, Type.VOID));
+        SimpleInsn insn = new SimpleInsn(opcode, SourcePosition.NO_INFO, regs);
+        return new ValueWithSize<DalvInsn>(insn, 4);
+    }
+
 }

@@ -31,8 +31,10 @@ import com.android.dx.rop.type.StdTypeList;
 import com.android.dx.rop.type.Type;
 import com.android.dx.rop.type.TypeList;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.ExceptionWithContext;
 import com.android.dx.util.Hex;
+import com.android.dx.util.ValueWithSize;
 
 import java.io.PrintWriter;
 import java.util.HashSet;
@@ -106,6 +108,15 @@ public final class CodeItem extends OffsettedItem {
         this.debugInfo = null;
     }
 
+    public CodeItem(CodeItem item) {
+        this(item.ref, item.code, item.isStatic, item.throwsList);
+    }
+
+
+    public CodeItem(CstMethodRef methodRef, ByteArray byteArray, int offset) {
+        this(parse(methodRef, byteArray, offset));
+    }
+
     /** {@inheritDoc} */
     @Override
     public ItemType itemType() {
@@ -153,6 +164,10 @@ public final class CodeItem extends OffsettedItem {
      */
     public CstMethodRef getRef() {
         return ref;
+    }
+
+    public DalvCode getDalvCode() {
+        return code;
     }
 
     /**
@@ -303,6 +318,22 @@ public final class CodeItem extends OffsettedItem {
             throw ExceptionWithContext.withContext(ex, "...while writing " +
                     "instructions for " + ref.toHuman());
         }
+    }
+
+    private static CodeItem parse(CstMethodRef methodRef, ByteArray byteArray, int offset) {
+        int regSz = byteArray.getShort2(offset);
+        int insSz = byteArray.getShort2(offset + 2);
+        int outsSz = byteArray.getShort2(offset + 4);
+        int triesSz = byteArray.getShort2(offset + 6);
+        int debugOff = byteArray.getInt2(offset + 8);
+        int insnsSz = byteArray.getInt2(offset + 12);
+        ValueWithSize<DalvInsnList> insns = DalvInsnList.parse(byteArray, offset + 16, insnsSz, regSz);
+	int catchesOffset = offset + 16 + insns.getSize();
+	if (catchesOffset % 4 != 0)
+	    catchesOffset += 2;
+	CatchStructs catches = CatchStructs.parse(byteArray, catchesOffset, triesSz);
+        DalvCode code = new DalvCode(insns.getValue(), catches.getTable());
+        return new CodeItem(methodRef, code, false, StdTypeList.EMPTY);
     }
 
     /**

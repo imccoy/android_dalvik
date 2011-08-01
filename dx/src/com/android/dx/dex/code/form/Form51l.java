@@ -18,12 +18,19 @@ package com.android.dx.dex.code.form;
 
 import com.android.dx.dex.code.CstInsn;
 import com.android.dx.dex.code.DalvInsn;
+import com.android.dx.dex.code.Dop;
 import com.android.dx.dex.code.InsnFormat;
+import com.android.dx.rop.code.RegisterSpec;
 import com.android.dx.rop.code.RegisterSpecList;
+import com.android.dx.rop.code.SourcePosition;
 import com.android.dx.rop.cst.Constant;
+import com.android.dx.rop.cst.CstLong;
 import com.android.dx.rop.cst.CstLiteral64;
 import com.android.dx.rop.cst.CstLiteralBits;
+import com.android.dx.rop.type.Type;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
+import com.android.dx.util.ValueWithSize;
 
 /**
  * Instruction format {@code 51l}. See the instruction format spec
@@ -99,4 +106,22 @@ public final class Form51l extends InsnFormat {
               (short) (value >> 32),
               (short) (value >> 48));
     }
+
+    public ValueWithSize<DalvInsn> parse(Dop opcode, ByteArray byteArray, int offset) {
+        int cu1 = byteArray.getShort(offset);
+        int a = lowByte(cu1);
+        int cu2 = byteArray.getShort(offset + 2);
+        int b_low = ((lowByte(cu2) << 8)) | (highByte(cu2));
+        int cu3 = byteArray.getShort(offset + 4);
+        int b_medlow = ((lowByte(cu3) << 8)) | (highByte(cu3));
+        int cu4 = byteArray.getShort(offset + 6);
+        int b_medhigh = ((lowByte(cu4) << 8)) | (highByte(cu4));
+        int cu5 = byteArray.getShort(offset + 8);
+        int b_high = ((lowByte(cu5) << 8)) | (highByte(cu5));
+	long b = b_low | (b_medlow << 16) | (b_medhigh << 32) | (b_high << 48);
+	RegisterSpecList regs = RegisterSpecList.make(RegisterSpec.make(a, Type.VOID));
+        CstInsn insn = new CstInsn(opcode, SourcePosition.NO_INFO, regs, CstLong.make(b)); 
+        return new ValueWithSize<DalvInsn>(insn, 10);
+    }
+
 }

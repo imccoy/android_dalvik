@@ -17,9 +17,16 @@
 package com.android.dx.dex.code.form;
 
 import com.android.dx.dex.code.DalvInsn;
+import com.android.dx.dex.code.CstInsn;
+import com.android.dx.dex.code.Dop;
 import com.android.dx.dex.code.InsnFormat;
 import com.android.dx.dex.code.TargetInsn;
+import com.android.dx.rop.code.RegisterSpecList;
+import com.android.dx.rop.code.SourcePosition;
+import com.android.dx.rop.cst.CstInteger;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
+import com.android.dx.util.ValueWithSize;
 
 /**
  * Instruction format {@code 10t}. See the instruction format spec
@@ -89,4 +96,11 @@ public final class Form10t extends InsnFormat {
 
         write(out, opcodeUnit(insn, (offset & 0xff)));
     }
+
+    public ValueWithSize<DalvInsn> parse(Dop opcode, ByteArray byteArray, int offset) {
+        int addr = byteArray.getByte(offset + 1);
+        CstInsn insn = new CstInsn(opcode, SourcePosition.NO_INFO, RegisterSpecList.EMPTY, CstInteger.make(addr));
+        return new ValueWithSize<DalvInsn>(insn, 2);
+    }
+
 }

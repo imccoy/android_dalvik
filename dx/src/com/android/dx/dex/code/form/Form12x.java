@@ -17,12 +17,17 @@
 package com.android.dx.dex.code.form;
 
 import com.android.dx.dex.code.DalvInsn;
+import com.android.dx.dex.code.Dop;
 import com.android.dx.dex.code.HighRegisterPrefix;
 import com.android.dx.dex.code.InsnFormat;
 import com.android.dx.dex.code.SimpleInsn;
 import com.android.dx.rop.code.RegisterSpec;
 import com.android.dx.rop.code.RegisterSpecList;
+import com.android.dx.rop.code.SourcePosition;
+import com.android.dx.rop.type.Type;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
+import com.android.dx.util.ValueWithSize;
 
 /**
  * Instruction format {@code 12x}. See the instruction format spec
@@ -129,4 +134,14 @@ public final class Form12x extends InsnFormat {
                               makeByte(regs.get(sz - 2).getReg(),
                                        regs.get(sz - 1).getReg())));
     }
+
+    public ValueWithSize<DalvInsn> parse(Dop opcode, ByteArray byteArray, int offset) {
+        int ba = byteArray.getByte(offset + 1);
+        int b = highNibble(ba);
+        int a = lowNibble(ba);
+        RegisterSpecList regs = RegisterSpecList.make(RegisterSpec.make(a, Type.VOID), RegisterSpec.make(b, Type.VOID));
+        SimpleInsn insn = new SimpleInsn(opcode, SourcePosition.NO_INFO, regs);
+        return new ValueWithSize<DalvInsn>(insn, 2);
+    }
+
 }

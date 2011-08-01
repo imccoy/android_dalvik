@@ -52,13 +52,10 @@ public final class StringIdItem
     public StringIdItem(ByteArray byteArray, int stringIndex) {
         this(parseCstUtf8(byteArray, stringIndex));
         this.data = new StringDataItem(this.value);
-        System.out.println(value.toString());
     }
 
     private static CstUtf8 parseCstUtf8(ByteArray byteArray, int stringIndex) {
-        System.out.println("String " + stringIndex);
         int stringIdsOffset = byteArray.getInt2(0x3c);
-        System.out.println("String is at offset " + stringIdsOffset);
         int dataOffset = byteArray.getInt2(stringIdsOffset + stringIndex * 4);
         int[] lengthAndOffset = byteArray.getUnsignedLeb128(dataOffset);
         int stringStart = dataOffset + lengthAndOffset[1];

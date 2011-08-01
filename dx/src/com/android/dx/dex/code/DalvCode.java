@@ -97,6 +97,13 @@ public final class DalvCode {
         this.insns = null;
     }
 
+    public DalvCode(DalvInsnList insns, CatchTable catches) {
+        this.insns = insns;
+        this.positionInfo = PositionList.NONE;
+        this.unprocessedInsns = new OutputFinisher(0, 0);
+        this.catches = catches;
+    }
+
     /**
      * Finish up processing of the method.
      */
@@ -154,7 +161,9 @@ public final class DalvCode {
      * @return whether this instance has any catches at all
      */
     public boolean hasAnyCatches() {
-        return unprocessedCatches.hasAnyCatches();
+        return catches != null
+                ? catches.size() != 0
+                : unprocessedCatches.hasAnyCatches();
     }
 
     /**

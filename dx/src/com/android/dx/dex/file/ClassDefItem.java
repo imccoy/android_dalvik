@@ -118,11 +118,18 @@ public final class ClassDefItem extends IndexedItem {
         this(parse(byteArray, index));
     }
 
+    private ClassDefItem(ClassDefItem classDefItem, AnnotationsDirectoryItem annotationsDirectory, ClassDataItem classData) {
+        this.thisClass = classDefItem.thisClass;
+        this.accessFlags = classDefItem.accessFlags;
+        this.superclass = classDefItem.superclass;
+        this.interfaces = classDefItem.interfaces;
+        this.sourceFile = classDefItem.sourceFile;
+        this.annotationsDirectory = annotationsDirectory;
+        this.classData = classData;
+    }
+
     private ClassDefItem(ClassDefItem classDefItem) {
-        this(classDefItem.getThisClass(), classDefItem.getAccessFlags(),
-             classDefItem.getSuperclass(), classDefItem.getInterfaces(),
-             classDefItem.getSourceFile());
-        this.annotationsDirectory = classDefItem.annotationsDirectory;
+        this(classDefItem, classDefItem.annotationsDirectory, classDefItem.classData);
     }
 
     private static ClassDefItem parse(ByteArray byteArray, int index) {
@@ -145,13 +152,13 @@ public final class ClassDefItem extends IndexedItem {
         CstUtf8 sourceFile = new StringIdItem(byteArray, sourceFileOffset).getValue();
 
         int annotationsOffset = byteArray.getInt2(classDefOffset + 20);
-        System.out.println("ClassDefItem sees annotationsOffset of " + annotationsOffset);
         AnnotationsDirectoryItem annotationsDirectory = annotationsOffset == 0 ? null : 
                 AnnotationsDirectoryItem.parse(byteArray, annotationsOffset);
 
-        ClassDefItem classDefItem = new ClassDefItem(thisClass, accessFlags, superclass, interfaces, sourceFile);
-        classDefItem.annotationsDirectory = annotationsDirectory;
-        return classDefItem;
+        int classDataOffset = byteArray.getInt2(classDefOffset + 24);
+        ClassDataItem classDataItem = new ClassDataItem(thisClass, byteArray, classDataOffset);
+
+        return new ClassDefItem(new ClassDefItem(thisClass, accessFlags, superclass, interfaces, sourceFile), annotationsDirectory, classDataItem);
     }
 
     /** {@inheritDoc} */

@@ -18,11 +18,18 @@ package com.android.dx.dex.code.form;
 
 import com.android.dx.dex.code.CstInsn;
 import com.android.dx.dex.code.DalvInsn;
+import com.android.dx.dex.code.Dop;
 import com.android.dx.dex.code.InsnFormat;
+import com.android.dx.rop.code.RegisterSpec;
 import com.android.dx.rop.code.RegisterSpecList;
+import com.android.dx.rop.code.SourcePosition;
 import com.android.dx.rop.cst.Constant;
+import com.android.dx.rop.cst.CstInteger;
 import com.android.dx.rop.cst.CstLiteralBits;
+import com.android.dx.rop.type.Type;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
+import com.android.dx.util.ValueWithSize;
 
 /**
  * Instruction format {@code 22b}. See the instruction format spec
@@ -103,4 +110,17 @@ public final class Form22b extends InsnFormat {
               opcodeUnit(insn, regs.get(0).getReg()),
               codeUnit(regs.get(1).getReg(), value & 0xff));
     }
+
+    public ValueWithSize<DalvInsn> parse(Dop opcode, ByteArray byteArray, int offset) {
+        int a = byteArray.getByte(offset + 1);
+	int cu2 = byteArray.getShort(offset + 2);
+        int b = lowByte(cu2);
+	int c = highByte(cu2);
+        RegisterSpecList regs = RegisterSpecList.make(RegisterSpec.make(a, Type.VOID),
+			RegisterSpec.make(b, Type.VOID));
+        CstInsn insn = new CstInsn(opcode, SourcePosition.NO_INFO, regs, CstInteger.make(c));
+        return new ValueWithSize<DalvInsn>(insn, 4);
+    }
+
+
 }

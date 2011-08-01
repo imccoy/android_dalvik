@@ -18,13 +18,20 @@ package com.android.dx.dex.code.form;
 
 import com.android.dx.dex.code.CstInsn;
 import com.android.dx.dex.code.DalvInsn;
+import com.android.dx.dex.code.Dop;
 import com.android.dx.dex.code.InsnFormat;
+import com.android.dx.dex.file.FieldIdItem;
+import com.android.dx.rop.code.RegisterSpec;
 import com.android.dx.rop.code.RegisterSpecList;
+import com.android.dx.rop.code.SourcePosition;
 import com.android.dx.rop.cst.Constant;
 import com.android.dx.rop.cst.CstFieldRef;
 import com.android.dx.rop.cst.CstString;
 import com.android.dx.rop.cst.CstType;
+import com.android.dx.rop.type.Type;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
+import com.android.dx.util.ValueWithSize;
 
 /**
  * Instruction format {@code 22c}. See the instruction format spec
@@ -106,4 +113,19 @@ public final class Form22c extends InsnFormat {
                          makeByte(regs.get(0).getReg(), regs.get(1).getReg())),
               (short) cpi);
     }
+
+    public ValueWithSize<DalvInsn> parse(Dop opcode, ByteArray byteArray, int offset) {
+        int cu1 = byteArray.getShort(offset);
+        int ba = lowByte(cu1);
+        int b = highNibble(ba);
+        int a = lowNibble(ba);
+        int cu2 = byteArray.getShort(offset + 2);
+        int c = ((lowByte(cu2) << 8)) | (highByte(cu2));
+        RegisterSpecList regs = RegisterSpecList.make(RegisterSpec.make(a, Type.VOID),
+                        RegisterSpec.make(b, Type.VOID));
+        CstInsn insn = new CstInsn(opcode, SourcePosition.NO_INFO, regs, new FieldIdItem(byteArray, c).getFieldRef());
+        return new ValueWithSize<DalvInsn>(insn, 4);
+    }
+
+
 }

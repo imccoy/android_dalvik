@@ -54,7 +54,6 @@ public final class Prototype implements Comparable<Prototype> {
         if (descriptor == null) {
             throw new NullPointerException("descriptor == null");
         }
-	System.out.println("descriptor: " + descriptor);
 
         Prototype result = internTable.get(descriptor);
         if (result != null) {

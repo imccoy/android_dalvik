@@ -23,9 +23,11 @@ import com.android.dx.rop.cst.CstType;
 import com.android.dx.rop.type.Type;
 import com.android.dx.util.AnnotatedOutput;
 import com.android.dx.util.ByteArrayAnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -82,6 +84,11 @@ public final class CatchStructs {
         this.handlerOffsets = null;
     }
 
+    private CatchStructs(CatchTable table) {
+        this.code = null;
+        this.table = table;
+    }
+
     /**
      * Finish processing the catches, if necessary.
      */
@@ -89,6 +96,10 @@ public final class CatchStructs {
         if (table == null) {
             table = code.getCatches();
         }
+    }
+
+    /* package */ CatchTable getTable() {
+        return table;
     }
 
     /**
@@ -313,5 +324,55 @@ public final class CatchStructs {
         }
 
         annotateTo.annotate(size, s);
+    }
+
+    public static CatchStructs parse(ByteArray byteArray, int offset, int triesSz) {
+        CatchTable table = new CatchTable(triesSz);
+        for (int i = 0; i < triesSz; i++) {
+            int start = byteArray.getInt2(offset);
+            int insnCount = byteArray.getShort2(offset + 4);
+            int handlerOffset = byteArray.getShort2(offset + 6);
+            System.out.println("insnCount = " + Hex.u4(insnCount));
+            CatchTable.Entry tableEntry = new CatchTable.Entry(start, start + insnCount, parseCatchHandlerList(byteArray, offset + (triesSz * 8) + handlerOffset));
+            offset += 8;
+        }
+        return new CatchStructs(table);
+    }
+
+
+    private static CatchHandlerList parseCatchHandlerList(ByteArray byteArray, int offset) {
+       int[] catchHandlerListSz = byteArray.getSignedLeb128(offset);
+       System.out.println("Catch handler list size at " + Hex.u4(offset));
+       int listSize;
+       boolean catchesAll;
+       CatchHandlerList handlerList;
+       offset += catchHandlerListSz[1];
+       if (catchHandlerListSz[0] < 0) {
+           listSize = -(catchHandlerListSz[0] + 1);
+           catchesAll = true;
+       } else {
+           listSize = catchHandlerListSz[0];
+           catchesAll = false;
+       }
+       handlerList = new CatchHandlerList(listSize + (catchesAll ? 1 : 0));
+       for (int i = 0; i < listSize; i++) {
+           System.out.println("Exception type id offset at " + Hex.u4(offset));
+           int exceptionTypeOffset[] = byteArray.getUnsignedLeb128(offset);
+           offset += exceptionTypeOffset[1];
+           int handler[] = byteArray.getUnsignedLeb128(offset);
+           System.out.println("Handler at " + Hex.u4(offset));
+           offset += handler[1];
+           CstType exceptionType = new TypeIdItem(byteArray, exceptionTypeOffset[0]).getDefiningClass();
+           CatchHandlerList.Entry listEntry = new CatchHandlerList.Entry(exceptionType, handler[0]);
+           handlerList.set(i, listEntry);
+       }
+       if (catchesAll) {
+           int handler[] = byteArray.getUnsignedLeb128(offset);
+           offset += handler[1];
+           CatchHandlerList.Entry listEntry = new CatchHandlerList.Entry(CstType.OBJECT, handler[0]);
+           handlerList.set(listSize, listEntry);
+       }
+       handlerList.setImmutable();
+       return handlerList;
     }
 }

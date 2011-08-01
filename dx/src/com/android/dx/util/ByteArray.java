@@ -200,6 +200,20 @@ public final class ByteArray {
         return new int[] { value, length };
     }
 
+    public int[] getSignedLeb128(int offset) {
+        int value = 0, length = 0;
+        int b;
+
+        do {
+            b = getByte(offset + length);
+            value |= b << 7 * length;
+            length++;
+        } while ((b & 0x80) != 0);
+        
+        return new int[] { value, length };
+    }
+
+
     /**
      * Gets the {@code unsigned byte} value at a particular offset.
      *
