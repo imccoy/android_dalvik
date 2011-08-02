@@ -16,6 +16,7 @@
 
 package com.android.dx.dex.code;
 
+import com.android.dx.dex.file.DexFile;
 import com.android.dx.rop.code.RegisterSpecList;
 import com.android.dx.rop.cst.Constant;
 import com.android.dx.rop.cst.CstInteger;
@@ -594,7 +595,7 @@ public abstract class InsnFormat {
         out.writeShort(c5);
     }
 
-    public ValueWithSize<DalvInsn> parse(Dop opcode, ByteArray byteArray, int offset) {
+    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset) {
         throw new RuntimeException("Need to implement parsing for " + this);
     }
 }

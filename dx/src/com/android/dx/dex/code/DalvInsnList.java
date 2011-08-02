@@ -16,6 +16,7 @@
 
 package com.android.dx.dex.code;
 
+import com.android.dx.dex.file.DexFile;
 import com.android.dx.rop.cst.Constant;
 import com.android.dx.rop.cst.CstBaseMethodRef;
 import com.android.dx.util.AnnotatedOutput;
@@ -168,13 +169,13 @@ public final class DalvInsnList extends FixedSizeList {
         }
     }
 
-    public static ValueWithSize<DalvInsnList> parse(ByteArray byteArray, int offset, int insnsSz, int regCount) {
+    public static ValueWithSize<DalvInsnList> parse(DexFile file, ByteArray byteArray, int offset, int insnsSz, int regCount) {
         ArrayList<DalvInsn> insnList = new ArrayList<DalvInsn>();
         int size = 0;
 	int address = 0;
         for (int i = 0; i < insnsSz; i += 2) {
             System.out.println("" + com.android.dx.util.Hex.u4(offset + size) + "\t" + size + "\t " + i + " / " + insnsSz);
-            ValueWithSize<DalvInsn> dalvInsnWithSize = DalvInsn.parse(byteArray, offset + size);
+            ValueWithSize<DalvInsn> dalvInsnWithSize = DalvInsn.parse(file, byteArray, offset + size);
 	    DalvInsn dalvInsn = dalvInsnWithSize.getValue();
             dalvInsn.setAddress(address);
 	    address += dalvInsn.codeSize();

@@ -20,6 +20,7 @@ import com.android.dx.dex.code.CstInsn;
 import com.android.dx.dex.code.DalvInsn;
 import com.android.dx.dex.code.Dop;
 import com.android.dx.dex.code.InsnFormat;
+import com.android.dx.dex.file.DexFile;
 import com.android.dx.rop.code.RegisterSpecList;
 import com.android.dx.rop.code.RegisterSpec;
 import com.android.dx.rop.code.SourcePosition;
@@ -110,7 +111,7 @@ public final class Form11n extends InsnFormat {
     }
 
 
-    public ValueWithSize<DalvInsn> parse(Dop opcode, ByteArray byteArray, int offset) {
+    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset) {
         int ba = byteArray.getByte(offset + 1);
         int b = highNibble(ba);
         int a = lowNibble(ba);

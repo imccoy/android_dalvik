@@ -515,7 +515,7 @@ public final class ClassDataItem extends OffsettedItem {
             int index = lastIndex + diff[0];
             CstMethodRef methodRef = (CstMethodRef)MethodIdItem.parse(file, byteArray, index).getMethodRef();
             
-            DalvCode code = codeOffset[0] == 0 ? null : new CodeItem(methodRef, byteArray, codeOffset[0]).getDalvCode();
+            DalvCode code = codeOffset[0] == 0 ? null : CodeItem.parse(file, methodRef, byteArray, codeOffset[0]).getDalvCode();
             directMethods.add(new EncodedMethod(methodRef, accessFlags[0], code, StdTypeList.EMPTY));
 
             diffOffset = codeOffOffset + codeOffset[1];

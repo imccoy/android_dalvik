@@ -21,6 +21,7 @@ import com.android.dx.dex.code.DalvInsn;
 import com.android.dx.dex.code.Dop;
 import com.android.dx.dex.code.InsnFormat;
 import com.android.dx.dex.code.TargetInsn;
+import com.android.dx.dex.file.DexFile;
 import com.android.dx.rop.code.RegisterSpecList;
 import com.android.dx.rop.code.RegisterSpec;
 import com.android.dx.rop.code.SourcePosition;
@@ -105,7 +106,7 @@ public final class Form21t extends InsnFormat {
               (short) offset);
     }
 
-    public ValueWithSize<DalvInsn> parse(Dop opcode, ByteArray byteArray, int offset) {
+    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset) {
         int cu1 = byteArray.getShort(offset);
         int a = lowByte(cu1);
         int cu2 = byteArray.getShort(offset + 2);

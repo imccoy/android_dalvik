@@ -16,6 +16,7 @@
 
 package com.android.dx.dex.code;
 
+import com.android.dx.dex.file.DexFile;
 import com.android.dx.rop.code.RegisterSpec;
 import com.android.dx.rop.code.RegisterSpecList;
 import com.android.dx.rop.code.SourcePosition;
@@ -422,9 +423,8 @@ public abstract class DalvInsn {
      */
     protected abstract String listingString0(boolean noteIndices);
 
-    public static ValueWithSize<DalvInsn> parse(ByteArray byteArray, int offset) {
+    public static ValueWithSize<DalvInsn> parse(DexFile file, ByteArray byteArray, int offset) {
         Dop opcode = Dops.get(byteArray.getByte(offset) & 0xFF);
-        System.out.println(opcode.getName());
-        return opcode.getFormat().parse(opcode, byteArray, offset);
+        return opcode.getFormat().parse(file, opcode, byteArray, offset);
     }
 }

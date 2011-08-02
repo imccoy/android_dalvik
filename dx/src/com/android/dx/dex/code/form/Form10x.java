@@ -20,6 +20,7 @@ import com.android.dx.dex.code.DalvInsn;
 import com.android.dx.dex.code.Dop;
 import com.android.dx.dex.code.InsnFormat;
 import com.android.dx.dex.code.SimpleInsn;
+import com.android.dx.dex.file.DexFile;
 import com.android.dx.rop.code.RegisterSpecList;
 import com.android.dx.rop.code.SourcePosition;
 import com.android.dx.util.AnnotatedOutput;
@@ -81,7 +82,7 @@ public final class Form10x extends InsnFormat {
         write(out, opcodeUnit(insn, 0));
     }
 
-    public ValueWithSize<DalvInsn> parse(Dop opcode, ByteArray byteArray, int offset) {
+    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset) {
         return new ValueWithSize<DalvInsn>(new SimpleInsn(opcode, SourcePosition.NO_INFO, RegisterSpecList.EMPTY), 2);
     }
 }

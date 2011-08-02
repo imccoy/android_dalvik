@@ -20,6 +20,7 @@ import com.android.dx.dex.code.DalvInsn;
 import com.android.dx.dex.code.Dop;
 import com.android.dx.dex.code.InsnFormat;
 import com.android.dx.dex.code.SimpleInsn;
+import com.android.dx.dex.file.DexFile;
 import com.android.dx.rop.code.RegisterSpec;
 import com.android.dx.rop.code.RegisterSpecList;
 import com.android.dx.rop.code.SourcePosition;
@@ -92,7 +93,7 @@ public final class Form23x extends InsnFormat {
               codeUnit(regs.get(1).getReg(), regs.get(2).getReg()));
     }
 
-    public ValueWithSize<DalvInsn> parse(Dop opcode, ByteArray byteArray, int offset) {
+    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset) {
         int a = byteArray.getByte(offset + 1);
 	int cu2 = byteArray.getShort(offset + 2);
         int b = lowByte(cu2);

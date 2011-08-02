@@ -22,7 +22,8 @@ import com.android.dx.dex.code.DalvCode;
 import com.android.dx.dex.code.DalvInsn;
 import com.android.dx.dex.code.DalvInsnList;
 import com.android.dx.dex.code.LocalList;
-import com.android.dx.dex.code.PositionList;
+import com.android.dx.dex.file.DexFile;
+import com.android.dx.rop.cst.Constant;
 import com.android.dx.rop.cst.Constant;
 import com.android.dx.rop.cst.CstMemberRef;
 import com.android.dx.rop.cst.CstMethodRef;
@@ -108,14 +109,10 @@ public final class CodeItem extends OffsettedItem {
         this.debugInfo = null;
     }
 
-    public CodeItem(CodeItem item) {
+    private CodeItem(CodeItem item) {
         this(item.ref, item.code, item.isStatic, item.throwsList);
     }
 
-
-    public CodeItem(CstMethodRef methodRef, ByteArray byteArray, int offset) {
-        this(parse(methodRef, byteArray, offset));
-    }
 
     /** {@inheritDoc} */
     @Override
@@ -320,14 +317,14 @@ public final class CodeItem extends OffsettedItem {
         }
     }
 
-    private static CodeItem parse(CstMethodRef methodRef, ByteArray byteArray, int offset) {
+    public static CodeItem parse(DexFile file, CstMethodRef methodRef, ByteArray byteArray, int offset) {
         int regSz = byteArray.getShort2(offset);
         int insSz = byteArray.getShort2(offset + 2);
         int outsSz = byteArray.getShort2(offset + 4);
         int triesSz = byteArray.getShort2(offset + 6);
         int debugOff = byteArray.getInt2(offset + 8);
         int insnsSz = byteArray.getInt2(offset + 12);
-        ValueWithSize<DalvInsnList> insns = DalvInsnList.parse(byteArray, offset + 16, insnsSz, regSz);
+        ValueWithSize<DalvInsnList> insns = DalvInsnList.parse(file, byteArray, offset + 16, insnsSz, regSz);
 	int catchesOffset = offset + 16 + insns.getSize();
 	if (catchesOffset % 4 != 0)
 	    catchesOffset += 2;
