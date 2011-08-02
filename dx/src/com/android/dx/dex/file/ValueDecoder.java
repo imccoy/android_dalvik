@@ -65,10 +65,12 @@ public final class ValueDecoder {
 
     ByteArray byteArray;
     int offset;
+    DexFile file;
 
-    public ValueDecoder(ByteArray byteArray, int offset) {
+    public ValueDecoder(DexFile file, ByteArray byteArray, int offset) {
         this.byteArray = byteArray;
         this.offset = offset;
+        this.file = file;
     }
 
     public Annotation readAnnotation(AnnotationVisibility visibility) {
@@ -122,7 +124,7 @@ public final class ValueDecoder {
 
     private CstMethodRef readMethod(int typeByte) {
         int index = (int)readUnsignedIntegralValue(typeByte);
-        return (CstMethodRef)new MethodIdItem(byteArray, index).getMethodRef();
+        return (CstMethodRef)MethodIdItem.parse(file, byteArray, index).getMethodRef();
     }
 
     private CstArray readArray() {

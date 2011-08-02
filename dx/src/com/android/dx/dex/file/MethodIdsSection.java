@@ -48,8 +48,7 @@ public final class MethodIdsSection extends MemberIdsSection {
 
     public void parse(ByteArray byteArray, int methodIdsSize) {
         for (int i = 0; i < methodIdsSize; i += 1) {
-            MethodIdItem item = new MethodIdItem(byteArray, i);
-            methodIds.put(item.getMethodRef(), item);
+            MethodIdItem.parse(getFile(), byteArray, i); /* this also interns */
         }
     }
 

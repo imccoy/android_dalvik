@@ -203,11 +203,11 @@ public final class UniformListItem<T extends OffsettedItem>
         }
     }
 
-    public static UniformListItem<AnnotationSetRefItem> parse(ByteArray byteArray, int offset) {
+    public static UniformListItem<AnnotationSetRefItem> parse(DexFile file, ByteArray byteArray, int offset) {
         List<AnnotationSetRefItem> list = new ArrayList<AnnotationSetRefItem>();
         int size = byteArray.getInt2(offset);
         for (int i = 0; i < size; i++) {
-            list.add(AnnotationSetRefItem.parse(byteArray, offset + (1 + i) * 4));
+            list.add(AnnotationSetRefItem.parse(file, byteArray, offset + (1 + i) * 4));
         }
         return new UniformListItem<AnnotationSetRefItem>(ItemType.TYPE_ANNOTATION_SET_REF_LIST, list);
     }

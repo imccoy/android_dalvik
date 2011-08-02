@@ -156,13 +156,11 @@ public final class AnnotationSetItem extends OffsettedItem {
         }
     }
 
-    public static AnnotationSetItem parse(ByteArray byteArray, int offset) {
+    public static AnnotationSetItem parse(DexFile file, ByteArray byteArray, int offset) {
         int size = byteArray.getInt2(offset);
-        System.out.println("AnnotationSetItem at " + Hex.u4(offset) + " has size " + size);
         Annotations annotations = new Annotations();
         for (int i = 0; i < size; i++) {
-            System.out.println("Annotation is at " + Hex.u4(4 + offset + i * ALIGNMENT));
-            annotations = Annotations.combine(annotations, new AnnotationItem(byteArray, 4 + offset + i * ALIGNMENT).getAnnotation());
+            annotations = Annotations.combine(annotations, AnnotationItem.parse(file, byteArray, 4 + offset + i * ALIGNMENT).getAnnotation());
         }
         return new AnnotationSetItem(annotations);
     }
