@@ -17,9 +17,14 @@
 package com.android.dx.dex.code.form;
 
 import com.android.dx.dex.code.DalvInsn;
+import com.android.dx.dex.code.Dop;
 import com.android.dx.dex.code.InsnFormat;
 import com.android.dx.dex.code.SimpleInsn;
+import com.android.dx.rop.code.RegisterSpecList;
+import com.android.dx.rop.code.SourcePosition;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
+import com.android.dx.util.ValueWithSize;
 
 /**
  * Instruction format {@code 10x}. See the instruction format spec
@@ -74,5 +79,9 @@ public final class Form10x extends InsnFormat {
     @Override
     public void writeTo(AnnotatedOutput out, DalvInsn insn) {
         write(out, opcodeUnit(insn, 0));
+    }
+
+    public ValueWithSize<DalvInsn> parse(Dop opcode, ByteArray byteArray, int offset) {
+        return new ValueWithSize<DalvInsn>(new SimpleInsn(opcode, SourcePosition.NO_INFO, RegisterSpecList.EMPTY), 2);
     }
 }

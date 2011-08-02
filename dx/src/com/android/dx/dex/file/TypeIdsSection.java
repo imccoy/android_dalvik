@@ -20,6 +20,7 @@ import com.android.dx.rop.cst.Constant;
 import com.android.dx.rop.cst.CstType;
 import com.android.dx.rop.type.Type;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
 
 import java.util.Collection;
@@ -43,6 +44,13 @@ public final class TypeIdsSection extends UniformItemSection {
         super("type_ids", file, 4);
 
         typeIds = new TreeMap<Type, TypeIdItem>();
+    }
+
+    public void parse(ByteArray byteArray, int typeIdsSize) {
+        for (int i = 0; i < typeIdsSize; i += 1) {
+            TypeIdItem item = new TypeIdItem(byteArray, i);
+            typeIds.put(item.getDefiningClass().getClassType(), item); /* getDefiningClass returns the type of a TypeIdItem */
+        }
     }
 
     /** {@inheritDoc} */

@@ -19,9 +19,11 @@ package com.android.dx.dex.code;
 import com.android.dx.rop.cst.Constant;
 import com.android.dx.rop.cst.CstBaseMethodRef;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.ExceptionWithContext;
 import com.android.dx.util.FixedSizeList;
 import com.android.dx.util.IndentingWriter;
+import com.android.dx.util.ValueWithSize;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -164,6 +166,22 @@ public final class DalvInsnList extends FixedSizeList {
             throw new RuntimeException("write length mismatch; expected " +
                     codeSize() + " but actually wrote " + written);
         }
+    }
+
+    public static ValueWithSize<DalvInsnList> parse(ByteArray byteArray, int offset, int insnsSz, int regCount) {
+        ArrayList<DalvInsn> insnList = new ArrayList<DalvInsn>();
+        int size = 0;
+	int address = 0;
+        for (int i = 0; i < insnsSz; i += 2) {
+            System.out.println("" + com.android.dx.util.Hex.u4(offset + size) + "\t" + size + "\t " + i + " / " + insnsSz);
+            ValueWithSize<DalvInsn> dalvInsnWithSize = DalvInsn.parse(byteArray, offset + size);
+	    DalvInsn dalvInsn = dalvInsnWithSize.getValue();
+            dalvInsn.setAddress(address);
+	    address += dalvInsn.codeSize();
+            insnList.add(dalvInsn);
+            size += dalvInsnWithSize.getSize();
+        }
+        return new ValueWithSize<DalvInsnList>(DalvInsnList.makeImmutable(insnList, regCount), size);
     }
 
     /**

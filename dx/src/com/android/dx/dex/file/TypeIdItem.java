@@ -18,7 +18,9 @@ package com.android.dx.dex.file;
 
 import com.android.dx.rop.cst.CstType;
 import com.android.dx.rop.cst.CstUtf8;
+import com.android.dx.rop.type.Type;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
 
 /**
@@ -35,6 +37,18 @@ public final class TypeIdItem extends IdItem {
      */
     public TypeIdItem(CstType type) {
         super(type);
+    }
+
+    public TypeIdItem(ByteArray byteArray, int index) {        
+        this(parseCstType(byteArray, index));
+    }
+
+    private static CstType parseCstType(ByteArray byteArray, int index) {
+        int typeIdsOffset = byteArray.getInt2(0x44);
+        int descriptorStringIndex = byteArray.getInt2(typeIdsOffset + index * 4);
+        String typeName = new StringIdItem(byteArray, descriptorStringIndex).getValue().getString();
+        CstType cstType = new CstType(Type.internReturnType(typeName));
+        return cstType;
     }
 
     /** {@inheritDoc} */

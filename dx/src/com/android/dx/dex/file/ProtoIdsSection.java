@@ -19,6 +19,7 @@ package com.android.dx.dex.file;
 import com.android.dx.rop.cst.Constant;
 import com.android.dx.rop.type.Prototype;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
 
 import java.util.Collection;
@@ -43,6 +44,13 @@ public final class ProtoIdsSection extends UniformItemSection {
         super("proto_ids", file, 4);
 
         protoIds = new TreeMap<Prototype, ProtoIdItem>();
+    }
+
+    public void parse(ByteArray byteArray, int protoIdsSize) {
+        for (int i = 0; i < protoIdsSize; i++) {
+            ProtoIdItem item = new ProtoIdItem(byteArray, i);
+            protoIds.put(item.getPrototype(), item);
+        }
     }
 
     /** {@inheritDoc} */

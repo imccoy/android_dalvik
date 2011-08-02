@@ -20,8 +20,10 @@ import com.android.dx.rop.cst.CstType;
 import com.android.dx.rop.cst.CstUtf8;
 import com.android.dx.rop.type.Prototype;
 import com.android.dx.rop.type.StdTypeList;
+import com.android.dx.rop.type.TypeList;
 import com.android.dx.rop.type.Type;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
 
 /**
@@ -59,6 +61,26 @@ public final class ProtoIdItem extends IndexedItem {
         StdTypeList parameters = prototype.getParameterTypes();
         this.parameterTypes = (parameters.size() == 0) ? null
             : new TypeListItem(parameters);
+    }
+
+    public ProtoIdItem(ByteArray byteArray, int index) {
+       this(parsePrototype(byteArray, index));
+    }
+
+    private static Prototype parsePrototype(ByteArray byteArray, int index) {
+        int protoIdsOffset = byteArray.getInt2(0x4C);
+        int protoIdOffset = protoIdsOffset + (index * WRITE_SIZE);
+        int shortFormOffset = byteArray.getInt2(protoIdOffset);
+        String shortForm = new StringIdItem(byteArray, shortFormOffset).getValue().getString();
+
+        int returnTypeOffset = byteArray.getInt2(protoIdOffset + 4);
+        CstType returnType = new TypeIdItem(byteArray, returnTypeOffset).getDefiningClass();
+
+        int paramsOffset = byteArray.getInt2(protoIdOffset + 8);
+        TypeList argumentTypes = paramsOffset == 0 ? 
+                null :
+                new TypeListItem(byteArray, paramsOffset).getList();
+        return Prototype.intern(Prototype.descriptorFor(returnType.getClassType(), argumentTypes));
     }
 
     /**
@@ -158,5 +180,9 @@ public final class ProtoIdItem extends IndexedItem {
         out.writeInt(shortyIdx);
         out.writeInt(returnIdx);
         out.writeInt(paramsOff);
+    }
+
+    Prototype getPrototype() {
+        return prototype;
     }
 }

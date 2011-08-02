@@ -18,14 +18,20 @@ package com.android.dx.dex.code.form;
 
 import com.android.dx.dex.code.CstInsn;
 import com.android.dx.dex.code.DalvInsn;
+import com.android.dx.dex.code.Dop;
 import com.android.dx.dex.code.InsnFormat;
+import com.android.dx.dex.code.SimpleInsn;
+import com.android.dx.dex.file.MethodIdItem;
 import com.android.dx.rop.code.RegisterSpec;
 import com.android.dx.rop.code.RegisterSpecList;
+import com.android.dx.rop.code.SourcePosition;
 import com.android.dx.rop.cst.Constant;
 import com.android.dx.rop.cst.CstMethodRef;
 import com.android.dx.rop.cst.CstType;
 import com.android.dx.rop.type.Type;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
+import com.android.dx.util.ValueWithSize;
 
 /**
  * Instruction format {@code 35c}. See the instruction format spec
@@ -190,4 +196,33 @@ public final class Form35c extends InsnFormat {
         result.setImmutable();
         return result;
     }
+
+    public ValueWithSize<DalvInsn> parse(Dop opcode, ByteArray byteArray, int offset) {
+        int cu1 = byteArray.getShort(offset);
+        int ba = lowByte(cu1);
+        int b = highNibble(ba);
+        int a = lowNibble(ba);
+        int cu2 = byteArray.getShort(offset + 2);
+        int c = ((lowByte(cu2) << 8)) | (highByte(cu2));
+        int cu3 = byteArray.getShort(offset + 4);
+        int d = lowNibble(highByte(cu3));
+        int e = highNibble(highByte(cu3));
+        int f = lowNibble(lowByte(cu3));
+        int g = highNibble(lowByte(cu3));
+
+        RegisterSpecList regs = RegisterSpecList.EMPTY;
+        if (b >= 5)
+            regs = regs.withFirst(RegisterSpec.make(a, Type.VOID));
+        if (b >= 4)
+            regs = regs.withFirst(RegisterSpec.make(g, Type.VOID));
+        if (b >= 3)
+            regs = regs.withFirst(RegisterSpec.make(f, Type.VOID));
+        if (b >= 2)
+            regs = regs.withFirst(RegisterSpec.make(e, Type.VOID));
+        if (b >= 1)
+            regs = regs.withFirst(RegisterSpec.make(d, Type.VOID));
+        CstInsn insn = new CstInsn(opcode, SourcePosition.NO_INFO, regs, new MethodIdItem(byteArray, c).getMethodRef());
+        return new ValueWithSize<DalvInsn>(insn, 6);
+    }
+
 }

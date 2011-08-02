@@ -16,11 +16,18 @@
 
 package com.android.dx.dex.code.form;
 
+import com.android.dx.dex.code.CstInsn;
 import com.android.dx.dex.code.DalvInsn;
+import com.android.dx.dex.code.Dop;
 import com.android.dx.dex.code.InsnFormat;
 import com.android.dx.dex.code.TargetInsn;
 import com.android.dx.rop.code.RegisterSpecList;
+import com.android.dx.rop.code.RegisterSpec;
+import com.android.dx.rop.code.SourcePosition;
+import com.android.dx.rop.cst.CstInteger;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
+import com.android.dx.util.ValueWithSize;
 
 /**
  * Instruction format {@code 21t}. See the instruction format spec
@@ -96,5 +103,14 @@ public final class Form21t extends InsnFormat {
         write(out,
               opcodeUnit(insn, regs.get(0).getReg()),
               (short) offset);
+    }
+
+    public ValueWithSize<DalvInsn> parse(Dop opcode, ByteArray byteArray, int offset) {
+        int cu1 = byteArray.getShort(offset);
+        int a = lowByte(cu1);
+        int cu2 = byteArray.getShort(offset + 2);
+        int b = ((lowByte(cu2) << 8)) | (highByte(cu2));
+        CstInsn insn = new CstInsn(opcode, SourcePosition.NO_INFO, RegisterSpecList.EMPTY, CstInteger.make(b)); 
+        return new ValueWithSize<DalvInsn>(insn, 4);
     }
 }

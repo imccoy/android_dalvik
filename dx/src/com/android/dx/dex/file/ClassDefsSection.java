@@ -21,6 +21,7 @@ import com.android.dx.rop.cst.CstType;
 import com.android.dx.rop.type.Type;
 import com.android.dx.rop.type.TypeList;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
 
 import java.util.ArrayList;
@@ -51,6 +52,14 @@ public final class ClassDefsSection extends UniformItemSection {
         classDefs = new TreeMap<Type, ClassDefItem>();
         orderedDefs = null;
     }
+
+    public void parse(ByteArray byteArray, int classDefsSize) {
+        for (int i = 0; i < classDefsSize; i += 1) {
+            ClassDefItem item = new ClassDefItem(byteArray, i);
+            classDefs.put(item.getThisClass().getType(), item);
+        }
+    }
+
 
     /** {@inheritDoc} */
     @Override

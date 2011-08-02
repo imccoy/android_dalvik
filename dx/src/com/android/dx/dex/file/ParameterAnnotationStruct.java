@@ -77,6 +77,22 @@ public final class ParameterAnnotationStruct
                 ItemType.TYPE_ANNOTATION_SET_REF_LIST, arrayList);
     }
 
+    public ParameterAnnotationStruct(CstMethodRef method,
+            UniformListItem<AnnotationSetRefItem> annotationsItem) {
+        if (method == null) {
+            throw new NullPointerException("method == null");
+        }
+        if (annotationsItem == null) {
+            throw new NullPointerException("annotationsItem == null");
+        }
+        this.method = method;
+        this.annotationsItem = annotationsItem;
+        AnnotationsList annotationsList = new AnnotationsList(annotationsItem.getItems().size());
+        for (int i = 0; i < annotationsItem.getItems().size(); i++) {
+            annotationsList.set(i, annotationsItem.getItems().get(i).getAnnotationSetItem().getAnnotations());
+        }
+        this.annotationsList = annotationsList;
+    }
     /** {@inheritDoc} */
     public int hashCode() {
         return method.hashCode();

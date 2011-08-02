@@ -18,6 +18,7 @@ package com.android.dx.dex.file;
 
 import com.android.dx.rop.cst.CstUtf8;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
 
 /**
@@ -46,6 +47,21 @@ public final class StringIdItem
 
         this.value = value;
         this.data = null;
+    }
+
+    public StringIdItem(ByteArray byteArray, int stringIndex) {
+        this(parseCstUtf8(byteArray, stringIndex));
+        this.data = new StringDataItem(this.value);
+    }
+
+    private static CstUtf8 parseCstUtf8(ByteArray byteArray, int stringIndex) {
+        int stringIdsOffset = byteArray.getInt2(0x3c);
+        int dataOffset = byteArray.getInt2(stringIdsOffset + stringIndex * 4);
+        int[] lengthAndOffset = byteArray.getUnsignedLeb128(dataOffset);
+        int stringStart = dataOffset + lengthAndOffset[1];
+        int stringEnd = stringStart + lengthAndOffset[0];
+        return new CstUtf8(byteArray.slice(stringStart, stringEnd));
+
     }
 
     /** {@inheritDoc} */

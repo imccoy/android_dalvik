@@ -28,6 +28,7 @@ import com.android.dx.rop.cst.CstUtf8;
 import com.android.dx.rop.type.StdTypeList;
 import com.android.dx.rop.type.TypeList;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
 import com.android.dx.util.Writers;
 
@@ -111,6 +112,53 @@ public final class ClassDefItem extends IndexedItem {
         this.classData = new ClassDataItem(thisClass);
         this.staticValuesItem = null;
         this.annotationsDirectory = new AnnotationsDirectoryItem();
+    }
+
+    public ClassDefItem(ByteArray byteArray, int index) {
+        this(parse(byteArray, index));
+    }
+
+    private ClassDefItem(ClassDefItem classDefItem, AnnotationsDirectoryItem annotationsDirectory, ClassDataItem classData) {
+        this.thisClass = classDefItem.thisClass;
+        this.accessFlags = classDefItem.accessFlags;
+        this.superclass = classDefItem.superclass;
+        this.interfaces = classDefItem.interfaces;
+        this.sourceFile = classDefItem.sourceFile;
+        this.annotationsDirectory = annotationsDirectory;
+        this.classData = classData;
+    }
+
+    private ClassDefItem(ClassDefItem classDefItem) {
+        this(classDefItem, classDefItem.annotationsDirectory, classDefItem.classData);
+    }
+
+    private static ClassDefItem parse(ByteArray byteArray, int index) {
+        int classDefsOffset = byteArray.getInt2(0x64);
+        int classDefOffset = classDefsOffset + (index * WRITE_SIZE);
+        int thisClassIdOffset = byteArray.getInt2(classDefOffset);
+        CstType thisClass = new TypeIdItem(byteArray, thisClassIdOffset).getDefiningClass();
+
+        int accessFlags = byteArray.getInt2(classDefOffset + 4);
+
+        int superClassIdOffset = byteArray.getInt2(classDefOffset + 8);
+        CstType superclass = superClassIdOffset == -1 ? null :
+                new TypeIdItem(byteArray, superClassIdOffset).getDefiningClass();
+
+        int interfacesOffset = byteArray.getInt2(classDefOffset + 12);
+        TypeList interfaces = interfacesOffset == 0 ? StdTypeList.EMPTY :
+                new TypeListItem(byteArray, interfacesOffset).getList();
+
+        int sourceFileOffset = byteArray.getInt2(classDefOffset + 16);
+        CstUtf8 sourceFile = new StringIdItem(byteArray, sourceFileOffset).getValue();
+
+        int annotationsOffset = byteArray.getInt2(classDefOffset + 20);
+        AnnotationsDirectoryItem annotationsDirectory = annotationsOffset == 0 ? null : 
+                AnnotationsDirectoryItem.parse(byteArray, annotationsOffset);
+
+        int classDataOffset = byteArray.getInt2(classDefOffset + 24);
+        ClassDataItem classDataItem = new ClassDataItem(thisClass, byteArray, classDataOffset);
+
+        return new ClassDefItem(new ClassDefItem(thisClass, accessFlags, superclass, interfaces, sourceFile), annotationsDirectory, classDataItem);
     }
 
     /** {@inheritDoc} */

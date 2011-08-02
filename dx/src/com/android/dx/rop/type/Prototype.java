@@ -203,6 +203,20 @@ public final class Prototype implements Comparable<Prototype> {
         return intern(sb.toString());
     }
 
+    public static String descriptorFor(Type returnType, TypeList argumentTypes) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
+        if (argumentTypes != null) {
+            for (int i = 0; i < argumentTypes.size(); i++) {
+                Type t = argumentTypes.getType(i);
+                sb.append(t.getDescriptor());
+            }
+        }
+        sb.append(")");
+        sb.append(returnType.getDescriptor());
+        return sb.toString();
+    }
+
     /**
      * Constructs an instance. This is a private constructor; use one
      * of the public static methods to get instances.

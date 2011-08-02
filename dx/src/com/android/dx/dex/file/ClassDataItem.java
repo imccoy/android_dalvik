@@ -16,14 +16,19 @@
 
 package com.android.dx.dex.file;
 
+import com.android.dx.dex.code.DalvCode;
 import com.android.dx.rop.cst.Constant;
 import com.android.dx.rop.cst.CstArray;
 import com.android.dx.rop.cst.CstLiteralBits;
+import com.android.dx.rop.cst.CstMethodRef;
 import com.android.dx.rop.cst.CstType;
 import com.android.dx.rop.cst.Zeroes;
+import com.android.dx.rop.type.StdTypeList;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.ByteArrayAnnotatedOutput;
 import com.android.dx.util.AnnotatedOutput;
 import com.android.dx.util.Hex;
+import com.android.dx.util.ValueWithSize;
 import com.android.dx.util.Writers;
 
 import java.io.PrintWriter;
@@ -90,6 +95,27 @@ public final class ClassDataItem extends OffsettedItem {
         this.virtualMethods = new ArrayList<EncodedMethod>(20);
         this.staticValuesConstant = null;
     }
+
+    public ClassDataItem(CstType thisClass, ByteArray byteArray, int offset) {
+        this(parse(thisClass, byteArray, offset));
+    }
+
+    public ClassDataItem(ClassDataItem classDataItem) {
+        this(classDataItem.thisClass, classDataItem.staticFields, classDataItem.staticValues, classDataItem.instanceFields, classDataItem.directMethods, classDataItem.virtualMethods, classDataItem.staticValuesConstant);
+    }
+
+
+    public ClassDataItem(CstType thisClass, ArrayList<EncodedField> staticFields, HashMap<EncodedField, Constant> staticValues, ArrayList<EncodedField> instanceFields, ArrayList<EncodedMethod> directMethods, ArrayList<EncodedMethod>virtualMethods, CstArray staticValuesConstant ) {
+        super(1, -1);
+        this.thisClass = thisClass;
+        this.staticFields = staticFields;
+        this.staticValues = staticValues;
+        this.instanceFields = instanceFields;
+        this.directMethods = directMethods;
+        this.virtualMethods = virtualMethods;
+        this.staticValuesConstant = staticValuesConstant;
+    }
+
 
     /** {@inheritDoc} */
     @Override
@@ -426,4 +452,85 @@ public final class ClassDataItem extends OffsettedItem {
             out.write(encodedForm);
         }
     }
+
+    private static ClassDataItem parse(CstType thisClass, ByteArray byteArray, int offset) {
+        int[] staticFieldsCount = byteArray.getUnsignedLeb128(offset);
+        int instanceFieldsCountOffset = offset + staticFieldsCount[1];
+        int[] instanceFieldsCount = byteArray.getUnsignedLeb128(instanceFieldsCountOffset);
+        int directMethodsCountOffset = instanceFieldsCountOffset + instanceFieldsCount[1];
+        int[] directMethodsCount = byteArray.getUnsignedLeb128(directMethodsCountOffset);
+        int virtualMethodsCountOffset = directMethodsCountOffset + directMethodsCount[1];
+        int[] virtualMethodsCount = byteArray.getUnsignedLeb128(virtualMethodsCountOffset);
+        int staticFieldsOffset = virtualMethodsCountOffset + virtualMethodsCount[1];
+        ValueWithSize<ArrayList<EncodedField>> staticFields = parseStaticFields(staticFieldsCount[0], byteArray, staticFieldsOffset);
+        int instanceFieldsOffset = staticFieldsOffset + staticFields.getSize();
+        ValueWithSize<ArrayList<EncodedField>> instanceFields = parseInstanceFields(instanceFieldsCount[0], byteArray, instanceFieldsOffset);
+        int directMethodsOffset = instanceFieldsOffset + instanceFields.getSize();
+        ValueWithSize<ArrayList<EncodedMethod>> directMethods = parseDirectMethods(directMethodsCount[0], byteArray, directMethodsOffset);
+        int virtualMethodsOffset = directMethodsOffset + directMethods.getSize();
+        ValueWithSize<ArrayList<EncodedMethod>> virtualMethods = parseDirectMethods(virtualMethodsCount[0], byteArray, virtualMethodsOffset);
+        
+
+        return new ClassDataItem(thisClass, staticFields.getValue(), /* staticValues */null, instanceFields.getValue(), directMethods.getValue(), virtualMethods.getValue(), /* staticValuesConstant*/null);
+    }
+
+    private static ValueWithSize<ArrayList<EncodedField>> parseStaticFields(int count, ByteArray byteArray, int staticFieldsOffset) {
+        ArrayList<EncodedField> staticFields = new ArrayList<EncodedField>();
+        int lastIndex = 0;
+        int diffOffset = staticFieldsOffset;
+        for (int i = 0; i < count; i++) {
+            int[] diff = byteArray.getUnsignedLeb128(diffOffset);
+            int accessFlagsOffset = diffOffset + diff[1];
+            int[] accessFlags = byteArray.getUnsignedLeb128(accessFlagsOffset);
+
+            int index = lastIndex + diff[0];
+            staticFields.add(new EncodedField(new FieldIdItem(byteArray, index).getFieldRef(), accessFlags[0]));
+
+            diffOffset = accessFlagsOffset + accessFlags[1];
+            lastIndex = index;
+        }
+        return new ValueWithSize<ArrayList<EncodedField>>(staticFields, diffOffset - staticFieldsOffset);
+    }
+
+    private static ValueWithSize<ArrayList<EncodedField>> parseInstanceFields(int count, ByteArray byteArray, int instanceFieldsOffset) {
+        ArrayList<EncodedField> instanceFields = new ArrayList<EncodedField>();
+        int lastIndex = 0;
+        int diffOffset = instanceFieldsOffset;
+        for (int i = 0; i < count; i++) {
+            int[] diff = byteArray.getUnsignedLeb128(diffOffset);
+            int accessFlagsOffset = diffOffset + diff[1];
+            int[] accessFlags = byteArray.getUnsignedLeb128(accessFlagsOffset);
+
+            int index = lastIndex + diff[0];
+            instanceFields.add(new EncodedField(new FieldIdItem(byteArray, index).getFieldRef(), accessFlags[0]));
+
+            diffOffset = accessFlagsOffset + accessFlags[1];
+            lastIndex = index;
+        }
+        return new ValueWithSize<ArrayList<EncodedField>>(instanceFields, diffOffset - instanceFieldsOffset);
+    }
+
+    private static ValueWithSize<ArrayList<EncodedMethod>> parseDirectMethods(int count, ByteArray byteArray, int directMethodsOffset) {
+        ArrayList<EncodedMethod> directMethods = new ArrayList<EncodedMethod>();
+        int lastIndex = 0;
+        int diffOffset = directMethodsOffset;
+        for (int i = 0; i < count; i++) {
+            int[] diff = byteArray.getUnsignedLeb128(diffOffset);
+            int accessFlagsOffset = diffOffset +  diff[1];
+            int[] accessFlags = byteArray.getUnsignedLeb128(accessFlagsOffset);
+            int codeOffOffset = accessFlagsOffset + accessFlags[1];
+            int[] codeOffset = byteArray.getUnsignedLeb128(codeOffOffset);
+            
+            int index = lastIndex + diff[0];
+            CstMethodRef methodRef = (CstMethodRef)new MethodIdItem(byteArray, index).getMethodRef();
+            
+            DalvCode code = codeOffset[0] == 0 ? null : new CodeItem(methodRef, byteArray, codeOffset[0]).getDalvCode();
+            directMethods.add(new EncodedMethod(methodRef, accessFlags[0], code, StdTypeList.EMPTY));
+
+            diffOffset = codeOffOffset + codeOffset[1];
+            lastIndex = index;
+        }
+        return new ValueWithSize<ArrayList<EncodedMethod>>(directMethods, diffOffset - directMethodsOffset);
+    }
+
 }

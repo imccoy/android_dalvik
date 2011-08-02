@@ -20,8 +20,10 @@ import com.android.dx.rop.code.RegisterSpec;
 import com.android.dx.rop.code.RegisterSpecList;
 import com.android.dx.rop.code.SourcePosition;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
 import com.android.dx.util.TwoColumnOutput;
+import com.android.dx.util.ValueWithSize;
 
 /**
  * Base class for Dalvik instructions.
@@ -419,4 +421,10 @@ public abstract class DalvInsn {
      * @return {@code null-ok;} the listing string
      */
     protected abstract String listingString0(boolean noteIndices);
+
+    public static ValueWithSize<DalvInsn> parse(ByteArray byteArray, int offset) {
+        Dop opcode = Dops.get(byteArray.getByte(offset) & 0xFF);
+        System.out.println(opcode.getName());
+        return opcode.getFormat().parse(opcode, byteArray, offset);
+    }
 }

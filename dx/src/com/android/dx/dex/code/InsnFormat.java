@@ -23,7 +23,9 @@ import com.android.dx.rop.cst.CstKnownNull;
 import com.android.dx.rop.cst.CstLiteral64;
 import com.android.dx.rop.cst.CstLiteralBits;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
+import com.android.dx.util.ValueWithSize;
 
 /**
  * Base class for all instruction format handlers. Instruction format
@@ -482,6 +484,22 @@ public abstract class InsnFormat {
         return low | (high << 4);
     }
 
+    protected static int lowNibble(int b) {
+        return b & 0x0F;
+    }
+
+    protected static int highNibble(int b) {
+        return (b >> 4) & 0x0F;
+    }
+
+    protected static int lowByte(int b) {
+        return b & 0xFF;
+    }
+
+    protected static int highByte(int b) {
+        return (b >> 8) & 0xFF;
+    }
+
     /**
      * Writes one code unit to the given output destination.
      *
@@ -574,5 +592,9 @@ public abstract class InsnFormat {
         out.writeShort(c3);
         out.writeShort(c4);
         out.writeShort(c5);
+    }
+
+    public ValueWithSize<DalvInsn> parse(Dop opcode, ByteArray byteArray, int offset) {
+        throw new RuntimeException("Need to implement parsing for " + this);
     }
 }

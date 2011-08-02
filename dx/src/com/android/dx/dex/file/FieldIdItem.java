@@ -16,7 +16,13 @@
 
 package com.android.dx.dex.file;
 
+import com.android.dx.util.ByteArray;
+
 import com.android.dx.rop.cst.CstFieldRef;
+import com.android.dx.rop.cst.CstNat;
+import com.android.dx.rop.cst.CstString;
+import com.android.dx.rop.cst.CstType;
+import com.android.dx.rop.cst.CstUtf8;
 
 /**
  * Representation of a field reference inside a Dalvik file.
@@ -29,6 +35,26 @@ public final class FieldIdItem extends MemberIdItem {
      */
     public FieldIdItem(CstFieldRef field) {
         super(field);
+    }
+
+    public FieldIdItem(ByteArray byteArray, int index) {
+        this(parseFieldRef(byteArray, index));
+    }
+
+    public static CstFieldRef parseFieldRef(ByteArray byteArray, int index) {
+        int fieldIdsOffset = byteArray.getInt2(0x54);
+        int fieldIdOffset = fieldIdsOffset + (index * WRITE_SIZE);
+        int definingClassOffset = byteArray.getShort2(fieldIdOffset);
+        CstType definingClass = new TypeIdItem(byteArray, definingClassOffset).getDefiningClass();
+
+        int fieldTypeOffset = byteArray.getShort2(fieldIdOffset + 2);
+        CstUtf8 fieldType = new TypeIdItem(byteArray, fieldTypeOffset).getDefiningClass().getDescriptor();
+
+        int nameOffset = byteArray.getInt2(fieldIdOffset + 4);
+        CstUtf8 name = new CstUtf8(new StringIdItem(byteArray, nameOffset).getValue().getString()); 
+
+        System.out.println("field " + name + " of type " + fieldType +  " defined by " + definingClass);
+        return new CstFieldRef(definingClass, new CstNat(name, definingClass.getDescriptor()));
     }
 
     /** {@inheritDoc} */

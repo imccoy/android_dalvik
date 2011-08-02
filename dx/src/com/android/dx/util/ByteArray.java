@@ -138,6 +138,11 @@ public final class ByteArray {
         return (getByte0(off) << 8) | getUnsignedByte0(off + 1);
     }
 
+    public int getShort2(int off) {
+        checkOffsets(off, off + 2);
+        return (getUnsignedByte0(off + 1) << 8) | getByte0(off);
+    }
+
     /**
      * Gets the {@code signed int} value at a particular offset.
      *
@@ -151,6 +156,15 @@ public final class ByteArray {
             (getUnsignedByte0(off + 2) << 8) |
             getUnsignedByte0(off + 3);
     }
+
+    public int getInt2(int off) {
+        checkOffsets(off, off + 4);
+        return (getUnsignedByte0(off)) |
+            (getUnsignedByte0(off + 1) << 8) |
+            (getUnsignedByte0(off + 2) << 16) |
+            getByte0(off + 3) << 24;
+    }
+
 
     /**
      * Gets the {@code signed long} value at a particular offset.
@@ -171,6 +185,34 @@ public final class ByteArray {
 
         return (part2 & 0xffffffffL) | ((long) part1) << 32;
     }
+
+
+    public int[] getUnsignedLeb128(int offset) {
+        int value = 0, length = 0;
+        int b;
+
+        do {
+            b = getByte(offset + length);
+            value |= (b & 0x7F) << 7 * length;
+            length++;
+        } while ((b & 0x80) != 0);
+        
+        return new int[] { value, length };
+    }
+
+    public int[] getSignedLeb128(int offset) {
+        int value = 0, length = 0;
+        int b;
+
+        do {
+            b = getByte(offset + length);
+            value |= b << 7 * length;
+            length++;
+        } while ((b & 0x80) != 0);
+        
+        return new int[] { value, length };
+    }
+
 
     /**
      * Gets the {@code unsigned byte} value at a particular offset.

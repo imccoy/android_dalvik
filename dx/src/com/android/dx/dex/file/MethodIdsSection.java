@@ -19,6 +19,7 @@ package com.android.dx.dex.file;
 import com.android.dx.rop.cst.Constant;
 import com.android.dx.rop.cst.CstBaseMethodRef;
 import com.android.dx.util.AnnotatedOutput;
+import com.android.dx.util.ByteArray;
 import com.android.dx.util.Hex;
 
 import java.util.Collection;
@@ -43,6 +44,13 @@ public final class MethodIdsSection extends MemberIdsSection {
         super("method_ids", file);
 
         methodIds = new TreeMap<CstBaseMethodRef, MethodIdItem>();
+    }
+
+    public void parse(ByteArray byteArray, int methodIdsSize) {
+        for (int i = 0; i < methodIdsSize; i += 1) {
+            MethodIdItem item = new MethodIdItem(byteArray, i);
+            methodIds.put(item.getMethodRef(), item);
+        }
     }
 
     /** {@inheritDoc} */
