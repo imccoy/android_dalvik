@@ -65,12 +65,11 @@ public final class AnnotationsDirectoryItem extends OffsettedItem {
         parameterAnnotations = null;
     }
 
-    public static AnnotationsDirectoryItem parse(ByteArray byteArray, int offset) {
+    public static AnnotationsDirectoryItem parse(DexFile file, ByteArray byteArray, int offset) {
         int classAnnotationsOffset = byteArray.getInt2(offset);
         AnnotationsDirectoryItem item = new AnnotationsDirectoryItem();
-        System.out.println("class annotations offset " + Hex.u4(offset) + " " + Hex.u4(classAnnotationsOffset));
         item.classAnnotations = classAnnotationsOffset == 0 ? null :
-                AnnotationSetItem.parse(byteArray, classAnnotationsOffset);
+                AnnotationSetItem.parse(file, byteArray, classAnnotationsOffset);
         int fieldsSize = byteArray.getInt2(offset + 4);
         int methodsSize = byteArray.getInt2(offset + 8);
         int parametersSize = byteArray.getInt2(offset + 12);
@@ -81,7 +80,7 @@ public final class AnnotationsDirectoryItem extends OffsettedItem {
         for (i = 0; i < fieldsSize; i++) {
             int fieldIdx = byteArray.getInt2(annotationRefOffset);
             int annotationOffset = byteArray.getInt2(annotationRefOffset + 4);
-            item.fieldAnnotations.add(new FieldAnnotationStruct(new FieldIdItem(byteArray, fieldIdx).getFieldRef(), AnnotationSetItem.parse(byteArray, annotationOffset)));
+            item.fieldAnnotations.add(new FieldAnnotationStruct(new FieldIdItem(byteArray, fieldIdx).getFieldRef(), AnnotationSetItem.parse(file, byteArray, annotationOffset)));
             annotationRefOffset += 8;
         }
 
@@ -89,7 +88,7 @@ public final class AnnotationsDirectoryItem extends OffsettedItem {
         for (i = 0; i < methodsSize; i++) {
             int methodIdx = byteArray.getInt2(annotationRefOffset);
             int annotationOffset = byteArray.getInt2(annotationRefOffset + 4);
-            item.methodAnnotations.add(new MethodAnnotationStruct((CstMethodRef)new MethodIdItem(byteArray, methodIdx).getMethodRef(), AnnotationSetItem.parse(byteArray, annotationOffset)));
+            item.methodAnnotations.add(new MethodAnnotationStruct((CstMethodRef)MethodIdItem.parse(file, byteArray, methodIdx).getMethodRef(), AnnotationSetItem.parse(file, byteArray, annotationOffset)));
             annotationRefOffset += 8;
         }
 
@@ -97,7 +96,7 @@ public final class AnnotationsDirectoryItem extends OffsettedItem {
         for (i = 0; i < parametersSize; i++) {
             int parameterIdx = byteArray.getInt2(annotationRefOffset);
             int annotationOffset = byteArray.getInt2(annotationRefOffset + 4);
-            item.parameterAnnotations.add(new ParameterAnnotationStruct((CstMethodRef)new MethodIdItem(byteArray, parameterIdx).getMethodRef(), UniformListItem.parse(byteArray, annotationOffset)));
+            item.parameterAnnotations.add(new ParameterAnnotationStruct((CstMethodRef)MethodIdItem.parse(file, byteArray, parameterIdx).getMethodRef(), UniformListItem.parse(file, byteArray, annotationOffset)));
             annotationRefOffset += 8;
         }
         return item;

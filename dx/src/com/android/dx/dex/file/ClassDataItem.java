@@ -96,16 +96,7 @@ public final class ClassDataItem extends OffsettedItem {
         this.staticValuesConstant = null;
     }
 
-    public ClassDataItem(CstType thisClass, ByteArray byteArray, int offset) {
-        this(parse(thisClass, byteArray, offset));
-    }
-
-    public ClassDataItem(ClassDataItem classDataItem) {
-        this(classDataItem.thisClass, classDataItem.staticFields, classDataItem.staticValues, classDataItem.instanceFields, classDataItem.directMethods, classDataItem.virtualMethods, classDataItem.staticValuesConstant);
-    }
-
-
-    public ClassDataItem(CstType thisClass, ArrayList<EncodedField> staticFields, HashMap<EncodedField, Constant> staticValues, ArrayList<EncodedField> instanceFields, ArrayList<EncodedMethod> directMethods, ArrayList<EncodedMethod>virtualMethods, CstArray staticValuesConstant ) {
+    private ClassDataItem(CstType thisClass, ArrayList<EncodedField> staticFields, HashMap<EncodedField, Constant> staticValues, ArrayList<EncodedField> instanceFields, ArrayList<EncodedMethod> directMethods, ArrayList<EncodedMethod>virtualMethods, CstArray staticValuesConstant ) {
         super(1, -1);
         this.thisClass = thisClass;
         this.staticFields = staticFields;
@@ -453,7 +444,7 @@ public final class ClassDataItem extends OffsettedItem {
         }
     }
 
-    private static ClassDataItem parse(CstType thisClass, ByteArray byteArray, int offset) {
+    public static ClassDataItem parse(DexFile file, CstType thisClass, ByteArray byteArray, int offset) {
         int[] staticFieldsCount = byteArray.getUnsignedLeb128(offset);
         int instanceFieldsCountOffset = offset + staticFieldsCount[1];
         int[] instanceFieldsCount = byteArray.getUnsignedLeb128(instanceFieldsCountOffset);
@@ -466,9 +457,9 @@ public final class ClassDataItem extends OffsettedItem {
         int instanceFieldsOffset = staticFieldsOffset + staticFields.getSize();
         ValueWithSize<ArrayList<EncodedField>> instanceFields = parseInstanceFields(instanceFieldsCount[0], byteArray, instanceFieldsOffset);
         int directMethodsOffset = instanceFieldsOffset + instanceFields.getSize();
-        ValueWithSize<ArrayList<EncodedMethod>> directMethods = parseDirectMethods(directMethodsCount[0], byteArray, directMethodsOffset);
+        ValueWithSize<ArrayList<EncodedMethod>> directMethods = parseDirectMethods(file, directMethodsCount[0], byteArray, directMethodsOffset);
         int virtualMethodsOffset = directMethodsOffset + directMethods.getSize();
-        ValueWithSize<ArrayList<EncodedMethod>> virtualMethods = parseDirectMethods(virtualMethodsCount[0], byteArray, virtualMethodsOffset);
+        ValueWithSize<ArrayList<EncodedMethod>> virtualMethods = parseDirectMethods(file, virtualMethodsCount[0], byteArray, virtualMethodsOffset);
         
 
         return new ClassDataItem(thisClass, staticFields.getValue(), /* staticValues */null, instanceFields.getValue(), directMethods.getValue(), virtualMethods.getValue(), /* staticValuesConstant*/null);
@@ -510,7 +501,7 @@ public final class ClassDataItem extends OffsettedItem {
         return new ValueWithSize<ArrayList<EncodedField>>(instanceFields, diffOffset - instanceFieldsOffset);
     }
 
-    private static ValueWithSize<ArrayList<EncodedMethod>> parseDirectMethods(int count, ByteArray byteArray, int directMethodsOffset) {
+    private static ValueWithSize<ArrayList<EncodedMethod>> parseDirectMethods(DexFile file, int count, ByteArray byteArray, int directMethodsOffset) {
         ArrayList<EncodedMethod> directMethods = new ArrayList<EncodedMethod>();
         int lastIndex = 0;
         int diffOffset = directMethodsOffset;
@@ -522,7 +513,7 @@ public final class ClassDataItem extends OffsettedItem {
             int[] codeOffset = byteArray.getUnsignedLeb128(codeOffOffset);
             
             int index = lastIndex + diff[0];
-            CstMethodRef methodRef = (CstMethodRef)new MethodIdItem(byteArray, index).getMethodRef();
+            CstMethodRef methodRef = (CstMethodRef)MethodIdItem.parse(file, byteArray, index).getMethodRef();
             
             DalvCode code = codeOffset[0] == 0 ? null : new CodeItem(methodRef, byteArray, codeOffset[0]).getDalvCode();
             directMethods.add(new EncodedMethod(methodRef, accessFlags[0], code, StdTypeList.EMPTY));

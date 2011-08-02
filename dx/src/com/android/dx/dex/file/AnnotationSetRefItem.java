@@ -83,9 +83,9 @@ public final class AnnotationSetRefItem extends OffsettedItem {
         return annotations;
     }
 
-    public static AnnotationSetRefItem parse(ByteArray byteArray, int offset) {
+    public static AnnotationSetRefItem parse(DexFile file, ByteArray byteArray, int offset) {
         int annotationSetOffset = byteArray.getInt2(offset);
-        AnnotationSetItem item = AnnotationSetItem.parse(byteArray, annotationSetOffset);
+        AnnotationSetItem item = AnnotationSetItem.parse(file, byteArray, annotationSetOffset);
         return new AnnotationSetRefItem(item);
     }
 }

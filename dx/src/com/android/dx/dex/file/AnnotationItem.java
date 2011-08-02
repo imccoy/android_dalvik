@@ -116,15 +116,11 @@ public final class AnnotationItem extends OffsettedItem {
         this.encodedForm = null;
     }
 
-    public AnnotationItem(ByteArray byteArray, int offset) {
-        this(parse(byteArray, offset).annotation);
-    }
-
-    private static AnnotationItem parse(ByteArray byteArray, int byteArrayIndexOffset) {
+    public static AnnotationItem parse(DexFile file, ByteArray byteArray, int byteArrayIndexOffset) {
         int offset = byteArray.getInt2(byteArrayIndexOffset);
         int visibilityByte = byteArray.getByte(offset);
         AnnotationVisibility visibility = visibilityFromByte(visibilityByte);
-        return new AnnotationItem(new ValueDecoder(byteArray, offset + 1).readAnnotation(visibility));
+        return new AnnotationItem(new ValueDecoder(file, byteArray, offset + 1).readAnnotation(visibility));
     }
 
     /** {@inheritDoc} */

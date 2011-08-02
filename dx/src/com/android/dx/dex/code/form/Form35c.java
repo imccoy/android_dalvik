@@ -21,6 +21,7 @@ import com.android.dx.dex.code.DalvInsn;
 import com.android.dx.dex.code.Dop;
 import com.android.dx.dex.code.InsnFormat;
 import com.android.dx.dex.code.SimpleInsn;
+import com.android.dx.dex.file.DexFile;
 import com.android.dx.dex.file.MethodIdItem;
 import com.android.dx.rop.code.RegisterSpec;
 import com.android.dx.rop.code.RegisterSpecList;
@@ -197,7 +198,7 @@ public final class Form35c extends InsnFormat {
         return result;
     }
 
-    public ValueWithSize<DalvInsn> parse(Dop opcode, ByteArray byteArray, int offset) {
+    public ValueWithSize<DalvInsn> parse(Dop opcode, DexFile file, ByteArray byteArray, int offset) {
         int cu1 = byteArray.getShort(offset);
         int ba = lowByte(cu1);
         int b = highNibble(ba);
@@ -221,7 +222,7 @@ public final class Form35c extends InsnFormat {
             regs = regs.withFirst(RegisterSpec.make(e, Type.VOID));
         if (b >= 1)
             regs = regs.withFirst(RegisterSpec.make(d, Type.VOID));
-        CstInsn insn = new CstInsn(opcode, SourcePosition.NO_INFO, regs, new MethodIdItem(byteArray, c).getMethodRef());
+        CstInsn insn = new CstInsn(opcode, SourcePosition.NO_INFO, regs, MethodIdItem.parse(file, byteArray, c).getMethodRef());
         return new ValueWithSize<DalvInsn>(insn, 6);
     }
 

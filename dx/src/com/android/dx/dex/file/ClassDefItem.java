@@ -114,10 +114,6 @@ public final class ClassDefItem extends IndexedItem {
         this.annotationsDirectory = new AnnotationsDirectoryItem();
     }
 
-    public ClassDefItem(ByteArray byteArray, int index) {
-        this(parse(byteArray, index));
-    }
-
     private ClassDefItem(ClassDefItem classDefItem, AnnotationsDirectoryItem annotationsDirectory, ClassDataItem classData) {
         this.thisClass = classDefItem.thisClass;
         this.accessFlags = classDefItem.accessFlags;
@@ -128,11 +124,7 @@ public final class ClassDefItem extends IndexedItem {
         this.classData = classData;
     }
 
-    private ClassDefItem(ClassDefItem classDefItem) {
-        this(classDefItem, classDefItem.annotationsDirectory, classDefItem.classData);
-    }
-
-    private static ClassDefItem parse(ByteArray byteArray, int index) {
+    public static ClassDefItem parse(DexFile file, ByteArray byteArray, int index) {
         int classDefsOffset = byteArray.getInt2(0x64);
         int classDefOffset = classDefsOffset + (index * WRITE_SIZE);
         int thisClassIdOffset = byteArray.getInt2(classDefOffset);
@@ -153,10 +145,10 @@ public final class ClassDefItem extends IndexedItem {
 
         int annotationsOffset = byteArray.getInt2(classDefOffset + 20);
         AnnotationsDirectoryItem annotationsDirectory = annotationsOffset == 0 ? null : 
-                AnnotationsDirectoryItem.parse(byteArray, annotationsOffset);
+                AnnotationsDirectoryItem.parse(file, byteArray, annotationsOffset);
 
         int classDataOffset = byteArray.getInt2(classDefOffset + 24);
-        ClassDataItem classDataItem = new ClassDataItem(thisClass, byteArray, classDataOffset);
+        ClassDataItem classDataItem = ClassDataItem.parse(file, thisClass, byteArray, classDataOffset);
 
         return new ClassDefItem(new ClassDefItem(thisClass, accessFlags, superclass, interfaces, sourceFile), annotationsDirectory, classDataItem);
     }

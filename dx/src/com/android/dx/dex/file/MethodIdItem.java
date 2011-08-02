@@ -42,11 +42,12 @@ public final class MethodIdItem extends MemberIdItem {
         return ItemType.TYPE_METHOD_ID_ITEM;
     }
 
-    public MethodIdItem(ByteArray byteArray, int index) {
-        this(parseMethodRef(byteArray, index));
+
+    public static MethodIdItem parse(DexFile file, ByteArray byteArray, int index) {
+        return file.getMethodIds().intern(parseMethodRef(byteArray, index));
     }
 
-    public static CstMethodRef parseMethodRef(ByteArray byteArray, int index) {
+    private static CstMethodRef parseMethodRef(ByteArray byteArray, int index) {
         int methodIdsOffset = byteArray.getInt2(0x5C);
         int methodIdOffset = methodIdsOffset + (index * WRITE_SIZE);
         int definingClassOffset = byteArray.getShort2(methodIdOffset);
