@@ -82,7 +82,7 @@ public final class Form10x extends InsnFormat {
         write(out, opcodeUnit(insn, 0));
     }
 
-    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset) {
+    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset, int address) {
         return new ValueWithSize<DalvInsn>(new SimpleInsn(opcode, SourcePosition.NO_INFO, RegisterSpecList.EMPTY), 2);
     }
 }

@@ -108,7 +108,7 @@ public final class Form51l extends InsnFormat {
               (short) (value >> 48));
     }
 
-    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset) {
+    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset, int address) {
         int cu1 = byteArray.getShort(offset);
         int a = lowByte(cu1);
         int cu2 = byteArray.getShort(offset + 2);
@@ -119,8 +119,8 @@ public final class Form51l extends InsnFormat {
         int b_medhigh = ((lowByte(cu4) << 8)) | (highByte(cu4));
         int cu5 = byteArray.getShort(offset + 8);
         int b_high = ((lowByte(cu5) << 8)) | (highByte(cu5));
-	long b = b_low | (b_medlow << 16) | (b_medhigh << 32) | (b_high << 48);
-	RegisterSpecList regs = RegisterSpecList.make(RegisterSpec.make(a, Type.VOID));
+        long b = b_low | (b_medlow << 16) | (b_medhigh << 32) | (b_high << 48);
+        RegisterSpecList regs = RegisterSpecList.make(RegisterSpec.make(a, Type.VOID));
         CstInsn insn = new CstInsn(opcode, SourcePosition.NO_INFO, regs, CstLong.make(b)); 
         return new ValueWithSize<DalvInsn>(insn, 10);
     }

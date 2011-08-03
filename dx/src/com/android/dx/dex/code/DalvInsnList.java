@@ -172,13 +172,12 @@ public final class DalvInsnList extends FixedSizeList {
     public static ValueWithSize<DalvInsnList> parse(DexFile file, ByteArray byteArray, int offset, int insnsSz, int regCount) {
         ArrayList<DalvInsn> insnList = new ArrayList<DalvInsn>();
         int size = 0;
-	int address = 0;
+        int address = 0;
         for (int i = 0; i < insnsSz; i += 2) {
-            System.out.println("" + com.android.dx.util.Hex.u4(offset + size) + "\t" + size + "\t " + i + " / " + insnsSz);
-            ValueWithSize<DalvInsn> dalvInsnWithSize = DalvInsn.parse(file, byteArray, offset + size);
-	    DalvInsn dalvInsn = dalvInsnWithSize.getValue();
+            ValueWithSize<DalvInsn> dalvInsnWithSize = DalvInsn.parse(file, byteArray, offset + size, address);
+            DalvInsn dalvInsn = dalvInsnWithSize.getValue();
             dalvInsn.setAddress(address);
-	    address += dalvInsn.codeSize();
+            address += dalvInsn.codeSize();
             insnList.add(dalvInsn);
             size += dalvInsnWithSize.getSize();
         }

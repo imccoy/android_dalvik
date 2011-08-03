@@ -115,7 +115,7 @@ public final class Form22c extends InsnFormat {
               (short) cpi);
     }
 
-    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset) {
+    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset, int address) {
         int cu1 = byteArray.getShort(offset);
         int ba = lowByte(cu1);
         int b = highNibble(ba);

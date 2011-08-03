@@ -423,8 +423,8 @@ public abstract class DalvInsn {
      */
     protected abstract String listingString0(boolean noteIndices);
 
-    public static ValueWithSize<DalvInsn> parse(DexFile file, ByteArray byteArray, int offset) {
+    public static ValueWithSize<DalvInsn> parse(DexFile file, ByteArray byteArray, int offset, int address) {
         Dop opcode = Dops.get(byteArray.getByte(offset) & 0xFF);
-        return opcode.getFormat().parse(file, opcode, byteArray, offset);
+        return opcode.getFormat().parse(file, opcode, byteArray, offset, address);
     }
 }

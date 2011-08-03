@@ -462,7 +462,7 @@ public final class ClassDataItem extends OffsettedItem {
         ValueWithSize<ArrayList<EncodedMethod>> virtualMethods = parseDirectMethods(file, virtualMethodsCount[0], byteArray, virtualMethodsOffset);
         
 
-        return new ClassDataItem(thisClass, staticFields.getValue(), /* staticValues */null, instanceFields.getValue(), directMethods.getValue(), virtualMethods.getValue(), /* staticValuesConstant*/null);
+        return new ClassDataItem(thisClass, staticFields.getValue(), new HashMap<EncodedField, Constant>(), instanceFields.getValue(), directMethods.getValue(), virtualMethods.getValue(), /* staticValuesConstant*/null);
     }
 
     private static ValueWithSize<ArrayList<EncodedField>> parseStaticFields(int count, ByteArray byteArray, int staticFieldsOffset) {

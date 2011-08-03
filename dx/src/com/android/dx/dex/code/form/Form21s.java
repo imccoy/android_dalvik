@@ -110,7 +110,7 @@ public final class Form21s extends InsnFormat {
               (short) value);
     }
 
-    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset) {
+    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset, int address) {
         int cu1 = byteArray.getShort(offset);
         int a = lowByte(cu1);
         int cu2 = byteArray.getShort(offset + 2);

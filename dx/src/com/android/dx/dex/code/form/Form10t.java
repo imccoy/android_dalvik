@@ -17,14 +17,13 @@
 package com.android.dx.dex.code.form;
 
 import com.android.dx.dex.code.DalvInsn;
-import com.android.dx.dex.code.CstInsn;
 import com.android.dx.dex.code.Dop;
 import com.android.dx.dex.code.InsnFormat;
+import com.android.dx.dex.code.CodeAddress;
 import com.android.dx.dex.code.TargetInsn;
 import com.android.dx.dex.file.DexFile;
 import com.android.dx.rop.code.RegisterSpecList;
 import com.android.dx.rop.code.SourcePosition;
-import com.android.dx.rop.cst.CstInteger;
 import com.android.dx.util.AnnotatedOutput;
 import com.android.dx.util.ByteArray;
 import com.android.dx.util.ValueWithSize;
@@ -99,9 +98,11 @@ public final class Form10t extends InsnFormat {
     }
 
     @Override
-    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset) {
-        int addr = byteArray.getByte(offset + 1);
-        CstInsn insn = new CstInsn(opcode, SourcePosition.NO_INFO, RegisterSpecList.EMPTY, CstInteger.make(addr));
+    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset, int address) {
+        int addr = address + byteArray.getByte(offset + 1);
+        CodeAddress target = new CodeAddress(new SourcePosition(null, addr, -1));
+        target.setAddress(address);
+        TargetInsn insn = new TargetInsn(opcode, SourcePosition.NO_INFO, RegisterSpecList.EMPTY, target);
         return new ValueWithSize<DalvInsn>(insn, 2);
     }
 

@@ -17,7 +17,10 @@
 package com.android.dx.dex.code;
 
 import com.android.dx.rop.cst.CstType;
+import com.android.dx.rop.type.Type;
 import com.android.dx.util.FixedSizeList;
+
+import java.util.HashSet;
 
 /**
  * Table of catch entries. Each entry includes a range of code
@@ -58,6 +61,19 @@ public final class CatchTable extends FixedSizeList
      */
     public void set(int n, Entry entry) {
         set0(n, entry);
+    }
+
+    public HashSet<Type> getCatchTypes() {
+        HashSet<Type> types = new HashSet<Type>();
+        for (int entryIdx = 0; entryIdx < this.size(); entryIdx++) {
+            Entry entry = this.get(entryIdx);
+
+            for (int handlerIdx = 0; handlerIdx < entry.getHandlers().size(); handlerIdx++) {
+                CatchHandlerList.Entry handler = entry.getHandlers().get(handlerIdx);
+                    types.add(handler.getExceptionType().getClassType());
+            }
+        }
+        return types;
     }
 
     /** {@inheritDoc} */

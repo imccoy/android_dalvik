@@ -112,11 +112,11 @@ public final class Form22b extends InsnFormat {
               codeUnit(regs.get(1).getReg(), value & 0xff));
     }
 
-    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset) {
+    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset, int address) {
         int a = byteArray.getByte(offset + 1);
-	int cu2 = byteArray.getShort(offset + 2);
+        int cu2 = byteArray.getShort(offset + 2);
         int b = lowByte(cu2);
-	int c = highByte(cu2);
+        int c = highByte(cu2);
         RegisterSpecList regs = RegisterSpecList.make(RegisterSpec.make(a, Type.VOID),
 			RegisterSpec.make(b, Type.VOID));
         CstInsn insn = new CstInsn(opcode, SourcePosition.NO_INFO, regs, CstInteger.make(c));

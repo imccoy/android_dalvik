@@ -116,9 +116,7 @@ public final class ValueDecoder {
     }
 
     private CstString readString(int typeByte) {
-        System.out.println("Reading string number from offset " + Hex.u4(offset));
         int index = (int)readUnsignedIntegralValue(typeByte);
-        System.out.println("String number " + index);
         return new CstString(new StringIdItem(byteArray, index).getValue());
     }
 
@@ -141,7 +139,6 @@ public final class ValueDecoder {
         int requiredBytes = (typeByte >> 5) + 1;
         long value = 0;
         for (int i = 0; i < requiredBytes; i++) {
-            System.out.println(Hex.u8(value));
             int b = readByte();
             value = value | ((b & 0xFF) << (i * 8));
         }

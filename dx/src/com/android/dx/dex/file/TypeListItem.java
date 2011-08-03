@@ -57,8 +57,6 @@ public final class TypeListItem extends OffsettedItem {
 
     private static TypeList parseTypeList(ByteArray byteArray, int typeListOffset) {
         int sz = byteArray.getInt2(typeListOffset);
-        System.out.println(typeListOffset);
-        System.out.println(sz);
         StdTypeList typeList = new StdTypeList(sz);
         typeListOffset += 4;
         for (int i = 0; i < sz; i++) {

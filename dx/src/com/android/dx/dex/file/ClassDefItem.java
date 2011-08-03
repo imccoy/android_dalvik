@@ -144,7 +144,7 @@ public final class ClassDefItem extends IndexedItem {
         CstUtf8 sourceFile = new StringIdItem(byteArray, sourceFileOffset).getValue();
 
         int annotationsOffset = byteArray.getInt2(classDefOffset + 20);
-        AnnotationsDirectoryItem annotationsDirectory = annotationsOffset == 0 ? null : 
+        AnnotationsDirectoryItem annotationsDirectory = annotationsOffset == 0 ? new AnnotationsDirectoryItem() : 
                 AnnotationsDirectoryItem.parse(file, byteArray, annotationsOffset);
 
         int classDataOffset = byteArray.getInt2(classDefOffset + 24);

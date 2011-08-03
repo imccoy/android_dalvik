@@ -53,7 +53,6 @@ public final class FieldIdItem extends MemberIdItem {
         int nameOffset = byteArray.getInt2(fieldIdOffset + 4);
         CstUtf8 name = new CstUtf8(new StringIdItem(byteArray, nameOffset).getValue().getString()); 
 
-        System.out.println("field " + name + " of type " + fieldType +  " defined by " + definingClass);
         return new CstFieldRef(definingClass, new CstNat(name, definingClass.getDescriptor()));
     }
 

@@ -199,7 +199,7 @@ public final class Form35c extends InsnFormat {
         return result;
     }
 
-    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset) {
+    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset, int address) {
         int cu1 = byteArray.getShort(offset);
         int ba = lowByte(cu1);
         int b = highNibble(ba);
@@ -223,7 +223,8 @@ public final class Form35c extends InsnFormat {
             regs = regs.withFirst(RegisterSpec.make(e, Type.VOID));
         if (b >= 1)
             regs = regs.withFirst(RegisterSpec.make(d, Type.VOID));
-        CstInsn insn = new CstInsn(opcode, SourcePosition.NO_INFO, regs, MethodIdItem.parse(file, byteArray, c).getMethodRef());
+	MethodIdItem methodItem = MethodIdItem.parse(file, byteArray, c);
+        CstInsn insn = new CstInsn(opcode, SourcePosition.NO_INFO, regs, methodItem.getMethodRef());
         return new ValueWithSize<DalvInsn>(insn, 6);
     }
 

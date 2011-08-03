@@ -111,7 +111,7 @@ public final class Form11n extends InsnFormat {
     }
 
 
-    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset) {
+    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset, int address) {
         int ba = byteArray.getByte(offset + 1);
         int b = highNibble(ba);
         int a = lowNibble(ba);

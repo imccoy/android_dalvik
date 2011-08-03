@@ -56,7 +56,7 @@ public final class ClassDefsSection extends UniformItemSection {
     public void parse(ByteArray byteArray, int classDefsSize) {
         for (int i = 0; i < classDefsSize; i += 1) {
             ClassDefItem item = ClassDefItem.parse(getFile(), byteArray, i);
-            classDefs.put(item.getThisClass().getType(), item);
+            classDefs.put(item.getThisClass().getClassType(), item);
         }
     }
 

@@ -92,7 +92,7 @@ public final class Form32x extends InsnFormat {
               (short) regs.get(1).getReg());
     }
 
-    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset) {
+    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset, int address) {
 	int cu2 = byteArray.getShort(offset + 2);
         int a = (lowByte(cu2) << 8) | highByte(cu2);
 	int cu3 = byteArray.getShort(offset + 4);

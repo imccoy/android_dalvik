@@ -332,8 +332,8 @@ public final class CatchStructs {
             int start = byteArray.getInt2(offset);
             int insnCount = byteArray.getShort2(offset + 4);
             int handlerOffset = byteArray.getShort2(offset + 6);
-            System.out.println("insnCount = " + Hex.u4(insnCount));
             CatchTable.Entry tableEntry = new CatchTable.Entry(start, start + insnCount, parseCatchHandlerList(byteArray, offset + (triesSz * 8) + handlerOffset));
+            table.set(i, tableEntry);
             offset += 8;
         }
         return new CatchStructs(table);
@@ -342,7 +342,6 @@ public final class CatchStructs {
 
     private static CatchHandlerList parseCatchHandlerList(ByteArray byteArray, int offset) {
        int[] catchHandlerListSz = byteArray.getSignedLeb128(offset);
-       System.out.println("Catch handler list size at " + Hex.u4(offset));
        int listSize;
        boolean catchesAll;
        CatchHandlerList handlerList;
@@ -356,11 +355,9 @@ public final class CatchStructs {
        }
        handlerList = new CatchHandlerList(listSize + (catchesAll ? 1 : 0));
        for (int i = 0; i < listSize; i++) {
-           System.out.println("Exception type id offset at " + Hex.u4(offset));
            int exceptionTypeOffset[] = byteArray.getUnsignedLeb128(offset);
            offset += exceptionTypeOffset[1];
            int handler[] = byteArray.getUnsignedLeb128(offset);
-           System.out.println("Handler at " + Hex.u4(offset));
            offset += handler[1];
            CstType exceptionType = new TypeIdItem(byteArray, exceptionTypeOffset[0]).getDefiningClass();
            CatchHandlerList.Entry listEntry = new CatchHandlerList.Entry(exceptionType, handler[0]);

@@ -595,7 +595,7 @@ public abstract class InsnFormat {
         out.writeShort(c5);
     }
 
-    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset) {
+    public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset, int address) {
         throw new RuntimeException("Need to implement parsing for " + this);
     }
 }

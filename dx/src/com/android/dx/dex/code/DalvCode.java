@@ -98,9 +98,11 @@ public final class DalvCode {
     }
 
     public DalvCode(DalvInsnList insns, CatchTable catches) {
-        this.insns = insns;
         this.positionInfo = PositionList.NONE;
         this.unprocessedInsns = new OutputFinisher(0, 0);
+        for (int i = 0; i < insns.size(); i++) {
+            unprocessedInsns.add(insns.get(i));
+        }
         this.catches = catches;
     }
 
@@ -115,7 +117,8 @@ public final class DalvCode {
         insns = unprocessedInsns.finishProcessingAndGetList();
         positions = PositionList.make(insns, positionInfo);
         locals = LocalList.make(insns);
-        catches = unprocessedCatches.build();
+        if (catches == null)
+            catches = unprocessedCatches.build();
 
         // Let them be gc'ed.
         unprocessedInsns = null;
@@ -172,7 +175,9 @@ public final class DalvCode {
      * @return {@code non-null;} the set of catch types
      */
     public HashSet<Type> getCatchTypes() {
-        return unprocessedCatches.getCatchTypes();
+        return catches != null
+                ? catches.getCatchTypes()
+                : unprocessedCatches.getCatchTypes();
     }
 
     /**
