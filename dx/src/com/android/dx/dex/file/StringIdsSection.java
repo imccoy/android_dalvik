@@ -49,11 +49,9 @@ public final class StringIdsSection
         strings = new TreeMap<CstUtf8, StringIdItem>();
     }
 
-    public void parse(MixedItemSection stringData, ByteArray byteArray, int stringIdsSize) {
+    public void parse(ByteArray byteArray, int stringIdsSize) {
         for (int i = 0; i < stringIdsSize; i += 1) {
-            StringIdItem item = new StringIdItem(byteArray, i);
-            strings.put(item.getValue(), item);
-            stringData.add(item.getData());
+            StringIdItem item = StringIdItem.parse(getFile(), byteArray, i); /* this interns */
         }
     }
 

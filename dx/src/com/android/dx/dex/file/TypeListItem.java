@@ -51,19 +51,15 @@ public final class TypeListItem extends OffsettedItem {
         this.list = list;
     }
 
-    public TypeListItem(ByteArray byteArray, int typeListOffset) {
-        this(parseTypeList(byteArray, typeListOffset));
-    }
-
-    private static TypeList parseTypeList(ByteArray byteArray, int typeListOffset) {
+    public static TypeListItem parse(DexFile file, ByteArray byteArray, int typeListOffset) {
         int sz = byteArray.getInt2(typeListOffset);
         StdTypeList typeList = new StdTypeList(sz);
         typeListOffset += 4;
         for (int i = 0; i < sz; i++) {
             int typeId = byteArray.getShort2(typeListOffset + i * 2);
-            typeList.set(i, new TypeIdItem(byteArray, typeId).getDefiningClass().getClassType());
+            typeList.set(i, TypeIdItem.parse(file, byteArray, typeId).getDefiningClass().getClassType());
         }
-        return typeList;
+        return new TypeListItem(typeList);
     }
 
     /** {@inheritDoc} */

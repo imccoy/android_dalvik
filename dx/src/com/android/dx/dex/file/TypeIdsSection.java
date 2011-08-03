@@ -48,8 +48,7 @@ public final class TypeIdsSection extends UniformItemSection {
 
     public void parse(ByteArray byteArray, int typeIdsSize) {
         for (int i = 0; i < typeIdsSize; i += 1) {
-            TypeIdItem item = new TypeIdItem(byteArray, i);
-            typeIds.put(item.getDefiningClass().getClassType(), item); /* getDefiningClass returns the type of a TypeIdItem */
+            TypeIdItem.parse(getFile(), byteArray, i); // this interns
         }
     }
 

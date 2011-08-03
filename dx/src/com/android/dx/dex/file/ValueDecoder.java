@@ -75,14 +75,14 @@ public final class ValueDecoder {
 
     public Annotation readAnnotation(AnnotationVisibility visibility) {
         int annotationTypeOffset = readUnsignedLeb128();
-        CstType annotationType = new TypeIdItem(byteArray, annotationTypeOffset).getDefiningClass();
+        CstType annotationType = TypeIdItem.parse(file, byteArray, annotationTypeOffset).getDefiningClass();
 
         int pairsSize = readUnsignedLeb128();
         Annotation annotation = new Annotation(annotationType, visibility);
 
         for (int i = 0; i < pairsSize; i++) {
             int nameIdx = readUnsignedLeb128();
-            CstUtf8 name = new StringIdItem(byteArray, nameIdx).getValue();
+            CstUtf8 name = StringIdItem.parse(file, byteArray, nameIdx).getValue();
             Constant value = readConstant();
             annotation.add(new NameValuePair(name, value));
         }
@@ -112,12 +112,12 @@ public final class ValueDecoder {
 
     private CstType readType(int typeByte) {
         int index = (int)readUnsignedIntegralValue(typeByte);
-        return new TypeIdItem(byteArray, index).getDefiningClass();
+        return TypeIdItem.parse(file, byteArray, index).getDefiningClass();
     }
 
     private CstString readString(int typeByte) {
         int index = (int)readUnsignedIntegralValue(typeByte);
-        return new CstString(new StringIdItem(byteArray, index).getValue());
+        return new CstString(StringIdItem.parse(file, byteArray, index).getValue());
     }
 
     private CstMethodRef readMethod(int typeByte) {

@@ -80,7 +80,7 @@ public final class AnnotationsDirectoryItem extends OffsettedItem {
         for (i = 0; i < fieldsSize; i++) {
             int fieldIdx = byteArray.getInt2(annotationRefOffset);
             int annotationOffset = byteArray.getInt2(annotationRefOffset + 4);
-            item.fieldAnnotations.add(new FieldAnnotationStruct(new FieldIdItem(byteArray, fieldIdx).getFieldRef(), AnnotationSetItem.parse(file, byteArray, annotationOffset)));
+            item.fieldAnnotations.add(new FieldAnnotationStruct(FieldIdItem.parse(file, byteArray, fieldIdx).getFieldRef(), AnnotationSetItem.parse(file, byteArray, annotationOffset)));
             annotationRefOffset += 8;
         }
 

@@ -488,7 +488,6 @@ public final class OutputFinisher {
             return format;
         }
 
-        System.out.println(" " + format + " " + insn);
         if (format.isCompatible(insn)) {
             // The instruction already fits in the current best-known format.
             return format;

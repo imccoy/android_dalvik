@@ -124,7 +124,7 @@ public final class Form22c extends InsnFormat {
         int c = ((lowByte(cu2) << 8)) | (highByte(cu2));
         RegisterSpecList regs = RegisterSpecList.make(RegisterSpec.make(a, Type.VOID),
                         RegisterSpec.make(b, Type.VOID));
-        CstInsn insn = new CstInsn(opcode, SourcePosition.NO_INFO, regs, new FieldIdItem(byteArray, c).getFieldRef());
+        CstInsn insn = new CstInsn(opcode, SourcePosition.NO_INFO, regs, FieldIdItem.parse(file, byteArray, c).getFieldRef());
         return new ValueWithSize<DalvInsn>(insn, 4);
     }
 

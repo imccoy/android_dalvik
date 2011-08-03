@@ -48,8 +48,7 @@ public final class ProtoIdsSection extends UniformItemSection {
 
     public void parse(ByteArray byteArray, int protoIdsSize) {
         for (int i = 0; i < protoIdsSize; i++) {
-            ProtoIdItem item = new ProtoIdItem(byteArray, i);
-            protoIds.put(item.getPrototype(), item);
+            ProtoIdItem.parse(getFile(), byteArray, i); // this interns
         }
     }
 

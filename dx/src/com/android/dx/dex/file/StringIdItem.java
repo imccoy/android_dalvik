@@ -49,18 +49,17 @@ public final class StringIdItem
         this.data = null;
     }
 
-    public StringIdItem(ByteArray byteArray, int stringIndex) {
-        this(parseCstUtf8(byteArray, stringIndex));
-        this.data = new StringDataItem(this.value);
+    public static StringIdItem parse(DexFile file, ByteArray byteArray, int stringIndex) {
+        return file.getStringIds().intern(parseString(byteArray, stringIndex));
     }
 
-    private static CstUtf8 parseCstUtf8(ByteArray byteArray, int stringIndex) {
+    private static String parseString(ByteArray byteArray, int stringIndex) {
         int stringIdsOffset = byteArray.getInt2(0x3c);
         int dataOffset = byteArray.getInt2(stringIdsOffset + stringIndex * 4);
         int[] lengthAndOffset = byteArray.getUnsignedLeb128(dataOffset);
         int stringStart = dataOffset + lengthAndOffset[1];
         int stringEnd = stringStart + lengthAndOffset[0];
-        return new CstUtf8(byteArray.slice(stringStart, stringEnd));
+        return new CstUtf8(byteArray.slice(stringStart, stringEnd)).getString();
 
     }
 

@@ -326,13 +326,13 @@ public final class CatchStructs {
         annotateTo.annotate(size, s);
     }
 
-    public static CatchStructs parse(ByteArray byteArray, int offset, int triesSz) {
+    public static CatchStructs parse(DexFile file, ByteArray byteArray, int offset, int triesSz) {
         CatchTable table = new CatchTable(triesSz);
         for (int i = 0; i < triesSz; i++) {
             int start = byteArray.getInt2(offset);
             int insnCount = byteArray.getShort2(offset + 4);
             int handlerOffset = byteArray.getShort2(offset + 6);
-            CatchTable.Entry tableEntry = new CatchTable.Entry(start, start + insnCount, parseCatchHandlerList(byteArray, offset + (triesSz * 8) + handlerOffset));
+            CatchTable.Entry tableEntry = new CatchTable.Entry(start, start + insnCount, parseCatchHandlerList(file, byteArray, offset + (triesSz * 8) + handlerOffset));
             table.set(i, tableEntry);
             offset += 8;
         }
@@ -340,7 +340,7 @@ public final class CatchStructs {
     }
 
 
-    private static CatchHandlerList parseCatchHandlerList(ByteArray byteArray, int offset) {
+    private static CatchHandlerList parseCatchHandlerList(DexFile file, ByteArray byteArray, int offset) {
        int[] catchHandlerListSz = byteArray.getSignedLeb128(offset);
        int listSize;
        boolean catchesAll;
@@ -359,7 +359,7 @@ public final class CatchStructs {
            offset += exceptionTypeOffset[1];
            int handler[] = byteArray.getUnsignedLeb128(offset);
            offset += handler[1];
-           CstType exceptionType = new TypeIdItem(byteArray, exceptionTypeOffset[0]).getDefiningClass();
+           CstType exceptionType = TypeIdItem.parse(file, byteArray, exceptionTypeOffset[0]).getDefiningClass();
            CatchHandlerList.Entry listEntry = new CatchHandlerList.Entry(exceptionType, handler[0]);
            handlerList.set(i, listEntry);
        }

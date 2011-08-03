@@ -39,16 +39,12 @@ public final class TypeIdItem extends IdItem {
         super(type);
     }
 
-    public TypeIdItem(ByteArray byteArray, int index) {        
-        this(parseCstType(byteArray, index));
-    }
-
-    private static CstType parseCstType(ByteArray byteArray, int index) {
+    public static TypeIdItem parse(DexFile file, ByteArray byteArray, int index) {
         int typeIdsOffset = byteArray.getInt2(0x44);
         int descriptorStringIndex = byteArray.getInt2(typeIdsOffset + index * 4);
-        String typeName = new StringIdItem(byteArray, descriptorStringIndex).getValue().getString();
+        String typeName = StringIdItem.parse(file, byteArray, descriptorStringIndex).getValue().getString();
         CstType cstType = new CstType(Type.internReturnType(typeName));
-        return cstType;
+        return file.getTypeIds().intern(cstType);
     }
 
     /** {@inheritDoc} */

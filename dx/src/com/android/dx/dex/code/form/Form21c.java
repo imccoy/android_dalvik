@@ -142,22 +142,22 @@ public final class Form21c extends InsnFormat {
 
     public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset, int address) {
         int a = byteArray.getByte(offset + 1);
-	int cu2 = byteArray.getShort(offset + 2);
+        int cu2 = byteArray.getShort(offset + 2);
         int b = (lowByte(cu2) << 8) | highByte(cu2);
         RegisterSpecList regs = RegisterSpecList.make(RegisterSpec.make(a, Type.VOID));
-	Constant constant = getConstant(opcode, byteArray, b);
+        Constant constant = getConstant(file, opcode, byteArray, b);
         CstInsn insn = new CstInsn(opcode, SourcePosition.NO_INFO, regs, constant);
         return new ValueWithSize<DalvInsn>(insn, 4);
     }
 
-    private Constant getConstant(Dop opcode, ByteArray byteArray, int index) {
-	if (opcode.getFamily() == DalvOps.SGET) {
-	    throw new RuntimeException("eeets a field");
-	} else if (opcode.getOpcode() == DalvOps.CONST_STRING) {
-	    return new StringIdItem(byteArray, index).getValue();
-	} else { /* CONST_CLASS, CHECK_CAST or NEW_INSTANCE */
-	    return new TypeIdItem(byteArray, index).getDefiningClass();
-	}
+    private Constant getConstant(DexFile file, Dop opcode, ByteArray byteArray, int index) {
+        if (opcode.getFamily() == DalvOps.SGET) {
+            throw new RuntimeException("eeets a field");
+        } else if (opcode.getOpcode() == DalvOps.CONST_STRING) {
+            return StringIdItem.parse(file, byteArray, index).getValue();
+        } else { /* CONST_CLASS, CHECK_CAST or NEW_INSTANCE */
+            return TypeIdItem.parse(file, byteArray, index).getDefiningClass();
+        }
     }
 
 }

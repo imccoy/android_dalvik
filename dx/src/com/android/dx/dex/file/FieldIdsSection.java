@@ -48,8 +48,7 @@ public final class FieldIdsSection extends MemberIdsSection {
 
     public void parse(ByteArray byteArray, int fieldIdsSize) {
         for (int i = 0; i < fieldIdsSize; i += 1) {
-            FieldIdItem item = new FieldIdItem(byteArray, i);
-            fieldIds.put(item.getFieldRef(), item);
+            FieldIdItem.parse(getFile(), byteArray, i); // this interns
         }
     }
 

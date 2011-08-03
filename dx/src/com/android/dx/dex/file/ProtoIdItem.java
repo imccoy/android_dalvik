@@ -63,24 +63,20 @@ public final class ProtoIdItem extends IndexedItem {
             : new TypeListItem(parameters);
     }
 
-    public ProtoIdItem(ByteArray byteArray, int index) {
-       this(parsePrototype(byteArray, index));
-    }
-
-    private static Prototype parsePrototype(ByteArray byteArray, int index) {
+    public static ProtoIdItem parse(DexFile file, ByteArray byteArray, int index) {
         int protoIdsOffset = byteArray.getInt2(0x4C);
         int protoIdOffset = protoIdsOffset + (index * WRITE_SIZE);
         int shortFormOffset = byteArray.getInt2(protoIdOffset);
-        String shortForm = new StringIdItem(byteArray, shortFormOffset).getValue().getString();
+        String shortForm = StringIdItem.parse(file, byteArray, shortFormOffset).getValue().getString();
 
         int returnTypeOffset = byteArray.getInt2(protoIdOffset + 4);
-        CstType returnType = new TypeIdItem(byteArray, returnTypeOffset).getDefiningClass();
+        CstType returnType = TypeIdItem.parse(file, byteArray, returnTypeOffset).getDefiningClass();
 
         int paramsOffset = byteArray.getInt2(protoIdOffset + 8);
         TypeList argumentTypes = paramsOffset == 0 ? 
                 null :
-                new TypeListItem(byteArray, paramsOffset).getList();
-        return Prototype.intern(Prototype.descriptorFor(returnType.getClassType(), argumentTypes));
+                TypeListItem.parse(file, byteArray, paramsOffset).getList();
+        return file.getProtoIds().intern(Prototype.intern(Prototype.descriptorFor(returnType.getClassType(), argumentTypes)));
     }
 
     /**

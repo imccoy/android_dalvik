@@ -37,23 +37,19 @@ public final class FieldIdItem extends MemberIdItem {
         super(field);
     }
 
-    public FieldIdItem(ByteArray byteArray, int index) {
-        this(parseFieldRef(byteArray, index));
-    }
-
-    public static CstFieldRef parseFieldRef(ByteArray byteArray, int index) {
+    public static FieldIdItem parse(DexFile file, ByteArray byteArray, int index) {
         int fieldIdsOffset = byteArray.getInt2(0x54);
         int fieldIdOffset = fieldIdsOffset + (index * WRITE_SIZE);
         int definingClassOffset = byteArray.getShort2(fieldIdOffset);
-        CstType definingClass = new TypeIdItem(byteArray, definingClassOffset).getDefiningClass();
+        CstType definingClass = TypeIdItem.parse(file, byteArray, definingClassOffset).getDefiningClass();
 
         int fieldTypeOffset = byteArray.getShort2(fieldIdOffset + 2);
-        CstUtf8 fieldType = new TypeIdItem(byteArray, fieldTypeOffset).getDefiningClass().getDescriptor();
+        CstUtf8 fieldType = TypeIdItem.parse(file, byteArray, fieldTypeOffset).getDefiningClass().getDescriptor();
 
         int nameOffset = byteArray.getInt2(fieldIdOffset + 4);
-        CstUtf8 name = new CstUtf8(new StringIdItem(byteArray, nameOffset).getValue().getString()); 
+        CstUtf8 name = new CstUtf8(StringIdItem.parse(file, byteArray, nameOffset).getValue().getString()); 
 
-        return new CstFieldRef(definingClass, new CstNat(name, definingClass.getDescriptor()));
+        return file.getFieldIds().intern(new CstFieldRef(definingClass, new CstNat(name, definingClass.getDescriptor())));
     }
 
     /** {@inheritDoc} */

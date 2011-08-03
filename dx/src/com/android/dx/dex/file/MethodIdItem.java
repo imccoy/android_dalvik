@@ -44,20 +44,20 @@ public final class MethodIdItem extends MemberIdItem {
 
 
     public static MethodIdItem parse(DexFile file, ByteArray byteArray, int index) {
-        return file.getMethodIds().intern(parseMethodRef(byteArray, index));
+        return file.getMethodIds().intern(parseMethodRef(file, byteArray, index));
     }
 
-    private static CstMethodRef parseMethodRef(ByteArray byteArray, int index) {
+    private static CstMethodRef parseMethodRef(DexFile file, ByteArray byteArray, int index) {
         int methodIdsOffset = byteArray.getInt2(0x5C);
         int methodIdOffset = methodIdsOffset + (index * WRITE_SIZE);
         int definingClassOffset = byteArray.getShort2(methodIdOffset);
-        CstType definingClass = new TypeIdItem(byteArray, definingClassOffset).getDefiningClass();
+        CstType definingClass = TypeIdItem.parse(file, byteArray, definingClassOffset).getDefiningClass();
 
         int prototypeOffset = byteArray.getShort2(methodIdOffset + 2);
-        CstUtf8 prototype = new CstUtf8(new ProtoIdItem(byteArray, prototypeOffset).getPrototype().getDescriptor());
+        CstUtf8 prototype = new CstUtf8(ProtoIdItem.parse(file, byteArray, prototypeOffset).getPrototype().getDescriptor());
 
         int nameOffset = byteArray.getInt2(methodIdOffset + 4);
-        CstUtf8 name = new CstUtf8(new StringIdItem(byteArray, nameOffset).getValue().getString()); 
+        CstUtf8 name = new CstUtf8(StringIdItem.parse(file, byteArray, nameOffset).getValue().getString()); 
 
         return new CstMethodRef(definingClass, new CstNat(name, prototype));
     }

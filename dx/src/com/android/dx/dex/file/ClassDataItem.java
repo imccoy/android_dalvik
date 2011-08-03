@@ -453,9 +453,9 @@ public final class ClassDataItem extends OffsettedItem {
         int virtualMethodsCountOffset = directMethodsCountOffset + directMethodsCount[1];
         int[] virtualMethodsCount = byteArray.getUnsignedLeb128(virtualMethodsCountOffset);
         int staticFieldsOffset = virtualMethodsCountOffset + virtualMethodsCount[1];
-        ValueWithSize<ArrayList<EncodedField>> staticFields = parseStaticFields(staticFieldsCount[0], byteArray, staticFieldsOffset);
+        ValueWithSize<ArrayList<EncodedField>> staticFields = parseStaticFields(file, staticFieldsCount[0], byteArray, staticFieldsOffset);
         int instanceFieldsOffset = staticFieldsOffset + staticFields.getSize();
-        ValueWithSize<ArrayList<EncodedField>> instanceFields = parseInstanceFields(instanceFieldsCount[0], byteArray, instanceFieldsOffset);
+        ValueWithSize<ArrayList<EncodedField>> instanceFields = parseInstanceFields(file, instanceFieldsCount[0], byteArray, instanceFieldsOffset);
         int directMethodsOffset = instanceFieldsOffset + instanceFields.getSize();
         ValueWithSize<ArrayList<EncodedMethod>> directMethods = parseDirectMethods(file, directMethodsCount[0], byteArray, directMethodsOffset);
         int virtualMethodsOffset = directMethodsOffset + directMethods.getSize();
@@ -465,7 +465,7 @@ public final class ClassDataItem extends OffsettedItem {
         return new ClassDataItem(thisClass, staticFields.getValue(), new HashMap<EncodedField, Constant>(), instanceFields.getValue(), directMethods.getValue(), virtualMethods.getValue(), /* staticValuesConstant*/null);
     }
 
-    private static ValueWithSize<ArrayList<EncodedField>> parseStaticFields(int count, ByteArray byteArray, int staticFieldsOffset) {
+    private static ValueWithSize<ArrayList<EncodedField>> parseStaticFields(DexFile file, int count, ByteArray byteArray, int staticFieldsOffset) {
         ArrayList<EncodedField> staticFields = new ArrayList<EncodedField>();
         int lastIndex = 0;
         int diffOffset = staticFieldsOffset;
@@ -475,7 +475,7 @@ public final class ClassDataItem extends OffsettedItem {
             int[] accessFlags = byteArray.getUnsignedLeb128(accessFlagsOffset);
 
             int index = lastIndex + diff[0];
-            staticFields.add(new EncodedField(new FieldIdItem(byteArray, index).getFieldRef(), accessFlags[0]));
+            staticFields.add(new EncodedField(FieldIdItem.parse(file, byteArray, index).getFieldRef(), accessFlags[0]));
 
             diffOffset = accessFlagsOffset + accessFlags[1];
             lastIndex = index;
@@ -483,7 +483,7 @@ public final class ClassDataItem extends OffsettedItem {
         return new ValueWithSize<ArrayList<EncodedField>>(staticFields, diffOffset - staticFieldsOffset);
     }
 
-    private static ValueWithSize<ArrayList<EncodedField>> parseInstanceFields(int count, ByteArray byteArray, int instanceFieldsOffset) {
+    private static ValueWithSize<ArrayList<EncodedField>> parseInstanceFields(DexFile file, int count, ByteArray byteArray, int instanceFieldsOffset) {
         ArrayList<EncodedField> instanceFields = new ArrayList<EncodedField>();
         int lastIndex = 0;
         int diffOffset = instanceFieldsOffset;
@@ -493,7 +493,7 @@ public final class ClassDataItem extends OffsettedItem {
             int[] accessFlags = byteArray.getUnsignedLeb128(accessFlagsOffset);
 
             int index = lastIndex + diff[0];
-            instanceFields.add(new EncodedField(new FieldIdItem(byteArray, index).getFieldRef(), accessFlags[0]));
+            instanceFields.add(new EncodedField(FieldIdItem.parse(file, byteArray, index).getFieldRef(), accessFlags[0]));
 
             diffOffset = accessFlagsOffset + accessFlags[1];
             lastIndex = index;

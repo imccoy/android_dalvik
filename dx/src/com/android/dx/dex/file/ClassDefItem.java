@@ -128,20 +128,20 @@ public final class ClassDefItem extends IndexedItem {
         int classDefsOffset = byteArray.getInt2(0x64);
         int classDefOffset = classDefsOffset + (index * WRITE_SIZE);
         int thisClassIdOffset = byteArray.getInt2(classDefOffset);
-        CstType thisClass = new TypeIdItem(byteArray, thisClassIdOffset).getDefiningClass();
+        CstType thisClass = TypeIdItem.parse(file, byteArray, thisClassIdOffset).getDefiningClass();
 
         int accessFlags = byteArray.getInt2(classDefOffset + 4);
 
         int superClassIdOffset = byteArray.getInt2(classDefOffset + 8);
         CstType superclass = superClassIdOffset == -1 ? null :
-                new TypeIdItem(byteArray, superClassIdOffset).getDefiningClass();
+                TypeIdItem.parse(file, byteArray, superClassIdOffset).getDefiningClass();
 
         int interfacesOffset = byteArray.getInt2(classDefOffset + 12);
         TypeList interfaces = interfacesOffset == 0 ? StdTypeList.EMPTY :
-                new TypeListItem(byteArray, interfacesOffset).getList();
+                TypeListItem.parse(file, byteArray, interfacesOffset).getList();
 
         int sourceFileOffset = byteArray.getInt2(classDefOffset + 16);
-        CstUtf8 sourceFile = new StringIdItem(byteArray, sourceFileOffset).getValue();
+        CstUtf8 sourceFile = StringIdItem.parse(file, byteArray, sourceFileOffset).getValue();
 
         int annotationsOffset = byteArray.getInt2(classDefOffset + 20);
         AnnotationsDirectoryItem annotationsDirectory = annotationsOffset == 0 ? new AnnotationsDirectoryItem() : 

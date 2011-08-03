@@ -328,7 +328,7 @@ public final class CodeItem extends OffsettedItem {
 	int catchesOffset = offset + 16 + insns.getSize();
 	if (catchesOffset % 4 != 0)
 	    catchesOffset += 2;
-	CatchStructs catches = CatchStructs.parse(byteArray, catchesOffset, triesSz);
+	CatchStructs catches = CatchStructs.parse(file, byteArray, catchesOffset, triesSz);
         DalvCode code = new DalvCode(insns.getValue(), catches.getTable());
         return new CodeItem(methodRef, code, false, StdTypeList.EMPTY);
     }
