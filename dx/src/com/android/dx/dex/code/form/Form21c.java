@@ -154,7 +154,7 @@ public final class Form21c extends InsnFormat {
         if (opcode.getFamily() == DalvOps.SGET) {
             throw new RuntimeException("eeets a field");
         } else if (opcode.getOpcode() == DalvOps.CONST_STRING) {
-            return StringIdItem.parse(file, byteArray, index).getValue();
+            return new CstString(StringIdItem.parse(file, byteArray, index).getValue());
         } else { /* CONST_CLASS, CHECK_CAST or NEW_INSTANCE */
             return TypeIdItem.parse(file, byteArray, index).getDefiningClass();
         }

@@ -51,7 +51,7 @@ public final class StringIdsSection
 
     public void parse(ByteArray byteArray, int stringIdsSize) {
         for (int i = 0; i < stringIdsSize; i += 1) {
-            StringIdItem item = StringIdItem.parse(getFile(), byteArray, i); /* this interns */
+            StringIdItem item = StringIdItem.parse(getFile(), byteArray, i); // this interns
         }
     }
 
