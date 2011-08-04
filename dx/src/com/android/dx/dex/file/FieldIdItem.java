@@ -49,7 +49,7 @@ public final class FieldIdItem extends MemberIdItem {
         int nameOffset = byteArray.getInt2(fieldIdOffset + 4);
         CstUtf8 name = new CstUtf8(StringIdItem.parse(file, byteArray, nameOffset).getValue().getString()); 
 
-        return file.getFieldIds().intern(new CstFieldRef(definingClass, new CstNat(name, definingClass.getDescriptor())));
+        return file.getFieldIds().intern(new CstFieldRef(definingClass, new CstNat(name, fieldType)));
     }
 
     /** {@inheritDoc} */
