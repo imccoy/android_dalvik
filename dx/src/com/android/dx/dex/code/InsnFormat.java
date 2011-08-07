@@ -17,9 +17,13 @@
 package com.android.dx.dex.code;
 
 import com.android.dx.dex.file.DexFile;
+import com.android.dx.dex.file.FieldIdItem;
+import com.android.dx.dex.file.StringIdItem;
+import com.android.dx.dex.file.TypeIdItem;
 import com.android.dx.rop.code.RegisterSpecList;
 import com.android.dx.rop.cst.Constant;
 import com.android.dx.rop.cst.CstInteger;
+import com.android.dx.rop.cst.CstString;
 import com.android.dx.rop.cst.CstKnownNull;
 import com.android.dx.rop.cst.CstLiteral64;
 import com.android.dx.rop.cst.CstLiteralBits;
@@ -597,5 +601,15 @@ public abstract class InsnFormat {
 
     public ValueWithSize<DalvInsn> parse(DexFile file, Dop opcode, ByteArray byteArray, int offset, int address) {
         throw new RuntimeException("Need to implement parsing for " + this);
+    }
+
+    protected Constant getConstantString(DexFile file, ByteArray byteArray, int index) {
+        return new CstString(StringIdItem.parse(file, byteArray, index).getValue());
+    }
+    protected Constant getConstantField(DexFile file, ByteArray byteArray, int index) {
+        return FieldIdItem.parse(file, byteArray, index).getFieldRef();
+    }
+    protected Constant getConstantType(DexFile file, ByteArray byteArray, int index) {
+        return TypeIdItem.parse(file, byteArray, index).getDefiningClass();
     }
 }

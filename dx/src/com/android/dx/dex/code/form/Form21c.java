@@ -30,8 +30,6 @@ import com.android.dx.rop.cst.CstFieldRef;
 import com.android.dx.rop.cst.CstString;
 import com.android.dx.rop.cst.CstType;
 import com.android.dx.rop.type.Type;
-import com.android.dx.dex.file.StringIdItem;
-import com.android.dx.dex.file.TypeIdItem;
 import com.android.dx.util.AnnotatedOutput;
 import com.android.dx.util.ByteArray;
 import com.android.dx.util.ValueWithSize;
@@ -152,11 +150,11 @@ public final class Form21c extends InsnFormat {
 
     private Constant getConstant(DexFile file, Dop opcode, ByteArray byteArray, int index) {
         if (opcode.getFamily() == DalvOps.SGET) {
-            throw new RuntimeException("eeets a field");
+            return getConstantField(file, byteArray, index);
         } else if (opcode.getOpcode() == DalvOps.CONST_STRING) {
-            return new CstString(StringIdItem.parse(file, byteArray, index).getValue());
+            return getConstantString(file, byteArray, index);
         } else { /* CONST_CLASS, CHECK_CAST or NEW_INSTANCE */
-            return TypeIdItem.parse(file, byteArray, index).getDefiningClass();
+            return getConstantType(file, byteArray, index);
         }
     }
 

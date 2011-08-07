@@ -18,16 +18,15 @@ package com.android.dx.dex.code.form;
 
 import com.android.dx.dex.code.CstInsn;
 import com.android.dx.dex.code.DalvInsn;
+import com.android.dx.dex.code.DalvOps;
 import com.android.dx.dex.code.Dop;
 import com.android.dx.dex.code.InsnFormat;
-import com.android.dx.dex.file.FieldIdItem;
 import com.android.dx.dex.file.DexFile;
 import com.android.dx.rop.code.RegisterSpec;
 import com.android.dx.rop.code.RegisterSpecList;
 import com.android.dx.rop.code.SourcePosition;
 import com.android.dx.rop.cst.Constant;
 import com.android.dx.rop.cst.CstFieldRef;
-import com.android.dx.rop.cst.CstString;
 import com.android.dx.rop.cst.CstType;
 import com.android.dx.rop.type.Type;
 import com.android.dx.util.AnnotatedOutput;
@@ -124,8 +123,17 @@ public final class Form22c extends InsnFormat {
         int c = ((lowByte(cu2) << 8)) | (highByte(cu2));
         RegisterSpecList regs = RegisterSpecList.make(RegisterSpec.make(a, Type.VOID),
                         RegisterSpec.make(b, Type.VOID));
-        CstInsn insn = new CstInsn(opcode, SourcePosition.NO_INFO, regs, FieldIdItem.parse(file, byteArray, c).getFieldRef());
+        Constant constant = getConstant(file, opcode, byteArray, c);
+        CstInsn insn = new CstInsn(opcode, SourcePosition.NO_INFO, regs, constant);
         return new ValueWithSize<DalvInsn>(insn, 4);
+    }
+
+    private Constant getConstant(DexFile file, Dop opcode, ByteArray byteArray, int index) {
+        if (opcode.getOpcode() == DalvOps.NEW_INSTANCE || opcode.getOpcode() == DalvOps.NEW_ARRAY) {
+            return getConstantType(file, byteArray, index);
+        } else { /* any of the IGET or IPUT opcodes */
+            return getConstantField(file, byteArray, index);
+        }
     }
 
 
